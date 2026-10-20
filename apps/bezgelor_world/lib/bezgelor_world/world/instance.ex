@@ -257,7 +257,9 @@ defmodule BezgelorWorld.World.Instance do
   This is called asynchronously by ZoneManager after AI tick processing
   to keep World.Instance's entity map in sync for broadcasting.
   """
-  @spec update_creature_entities(non_neg_integer(), instance_id(), [{non_neg_integer(), Entity.t()}]) ::
+  @spec update_creature_entities(non_neg_integer(), instance_id(), [
+          {non_neg_integer(), Entity.t()}
+        ]) ::
           :ok
   def update_creature_entities(world_id, instance_id, entity_updates) do
     GenServer.cast(
@@ -812,7 +814,7 @@ defmodule BezgelorWorld.World.Instance do
     # Update entities map and spatial grid with new creature positions
     {entities, spatial_grid} =
       Enum.reduce(entity_updates, {state.entities, state.spatial_grid}, fn {guid, entity},
-                                                                            {entities, grid} ->
+                                                                           {entities, grid} ->
         old_entity = Map.get(entities, guid)
         new_entities = Map.put(entities, guid, entity)
 
@@ -982,7 +984,8 @@ defmodule BezgelorWorld.World.Instance do
           apply_damage_to_creature(creature_state, attacker_guid, damage, state)
 
         creature_states = Map.put(state.creature_states, creature_guid, new_creature_state)
-        {:reply, result, %{state | creature_states: creature_states}}
+        entities = Map.put(state.entities, creature_guid, new_creature_state.entity)
+        {:reply, result, %{state | creature_states: creature_states, entities: entities}}
     end
   end
 
@@ -1234,7 +1237,10 @@ defmodule BezgelorWorld.World.Instance do
           {spawned_count, new_state} =
             spawn_from_definitions(zone_data.creature_spawns, state)
 
-          Logger.info("Loaded #{spawned_count} creature spawns for #{zone_name} (first player entered)")
+          Logger.info(
+            "Loaded #{spawned_count} creature spawns for #{zone_name} (first player entered)"
+          )
+
           %{new_state | spawns_loaded: true}
 
         :error ->
@@ -1302,7 +1308,9 @@ defmodule BezgelorWorld.World.Instance do
   defp apply_damage_to_creature(creature_state, attacker_guid, damage, state) do
     killer_level = get_killer_level(attacker_guid, creature_state.template.level, state)
 
-    case CreatureState.apply_damage(creature_state, attacker_guid, damage, killer_level: killer_level) do
+    case CreatureState.apply_damage(creature_state, attacker_guid, damage,
+           killer_level: killer_level
+         ) do
       {:ok, :damaged, result_info, new_creature_state} ->
         {{:ok, :damaged, result_info}, new_creature_state, state}
 

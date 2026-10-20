@@ -74,7 +74,7 @@ defmodule BezgelorProtocol.Handler.PackedWorldHandler do
               "[World] Recv: #{Opcode.name(inner_opcode)} (#{byte_size(inner_payload)} bytes)"
             )
 
-            handler.handle(inner_payload, state)
+            handler.handle(inner_payload, Map.put(state, :current_opcode, inner_opcode))
 
           {:error, reason} ->
             {:error, reason}

@@ -78,7 +78,7 @@ defmodule BezgelorProtocol.Handler.EncryptedHandler do
           "[#{server_name}] Recv: #{Opcode.name(inner_opcode)} (#{byte_size(inner_payload)} bytes)"
         )
 
-        handler.handle(inner_payload, state)
+        handler.handle(inner_payload, Map.put(state, :current_opcode, inner_opcode))
       end
     end
   end

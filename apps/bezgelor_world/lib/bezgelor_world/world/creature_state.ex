@@ -209,7 +209,13 @@ defmodule BezgelorWorld.World.CreatureState do
 
       # handle_death returns {{:ok, :killed, result_info}, new_creature_state}
       {{:ok, :killed, result_info}, new_creature_state} =
-        CreatureDeath.handle_death(creature_state, entity, attacker_guid, killer_level)
+        CreatureDeath.handle_death(
+          %{creature_state | ai: ai},
+          entity,
+          attacker_guid,
+          killer_level,
+          opts
+        )
 
       {:ok, :killed, result_info, new_creature_state}
     else

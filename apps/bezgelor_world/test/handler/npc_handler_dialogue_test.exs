@@ -1,46 +1,57 @@
 defmodule BezgelorWorld.Handler.NpcHandlerDialogueTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   alias BezgelorWorld.Handler.NpcHandler
   alias BezgelorProtocol.Packets.World.{ClientNpcInteract, ServerDialogStart}
+  alias BezgelorWorld.World.Instance
+  alias BezgelorCore.{Entity, EntityGuid}
 
-  describe "handle_interact/4 with dialogue event" do
-    test "sends ServerDialogStart for event 37" do
-      # Setup: create a mock connection that captures sent packets
-      test_pid = self()
+  setup do
+    key = {30_001, 91}
 
-      connection_pid =
-        spawn(fn ->
-          receive do
-            {:send_packet, packet} -> send(test_pid, {:packet_sent, packet})
-          end
-        end)
+    pid =
+      start_supervised!(
+        {Instance, world_id: elem(key, 0), instance_id: elem(key, 1), lazy_loading: true}
+      )
 
-      packet = %ClientNpcInteract{npc_guid: 12345, event: 37}
-      session_data = %{character_id: 1, zone_instance: nil}
-
-      NpcHandler.handle_interact(connection_pid, 1, packet, session_data)
-
-      assert_receive {:packet_sent, %ServerDialogStart{dialog_unit_id: 12345, unused: false}},
-                     1000
+    for counter <- [12345, 99999] do
+      Instance.add_entity(pid, %Entity{
+        guid: EntityGuid.new(:creature, counter),
+        type: :creature,
+        creature_id: 53532
+      })
     end
 
-    test "sends ServerDialogStart for dialogue event with different GUID" do
-      test_pid = self()
+    _ = :sys.get_state(pid)
+    {:ok, session: %{character_id: 1, world_id: elem(key, 0), instance_id: elem(key, 1)}}
+  end
 
-      connection_pid =
-        spawn(fn ->
-          receive do
-            {:send_packet, packet} -> send(test_pid, {:packet_sent, packet})
-          end
-        end)
+  describe "handle_interact/4 with dialogue event" do
+    test "sends ServerDialogStart for event 37", %{session: session} do
+      guid = EntityGuid.new(:creature, 12345)
+      packet = %ClientNpcInteract{npc_guid: guid, event: 37}
+      NpcHandler.handle_interact(self(), 1, packet, session)
+      assert_receive {:send_packet, %ServerDialogStart{dialog_unit_id: ^guid, unused: false}}
+    end
 
-      packet = %ClientNpcInteract{npc_guid: 99999, event: ClientNpcInteract.event_dialogue()}
-      session_data = %{character_id: 42, zone_instance: nil}
+    test "sends ServerDialogStart for dialogue event with different GUID", %{session: session} do
+      guid = EntityGuid.new(:creature, 99999)
+      packet = %ClientNpcInteract{npc_guid: guid, event: ClientNpcInteract.event_dialogue()}
+      NpcHandler.handle_interact(self(), 1, packet, session)
+      assert_receive {:send_packet, %ServerDialogStart{dialog_unit_id: ^guid}}
+    end
 
-      NpcHandler.handle_interact(connection_pid, 42, packet, session_data)
+    test "ignores zero and unregistered GUIDs", %{session: session} do
+      for guid <- [0, EntityGuid.new(:creature, 88)] do
+        NpcHandler.handle_interact(
+          self(),
+          1,
+          %ClientNpcInteract{npc_guid: guid, event: 37},
+          session
+        )
+      end
 
-      assert_receive {:packet_sent, %ServerDialogStart{dialog_unit_id: 99999}}, 1000
+      refute_receive {:send_packet, _}
     end
   end
 end

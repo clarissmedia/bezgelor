@@ -249,8 +249,8 @@ defmodule BezgelorCore.AITest do
       assert :none == AI.tick(ai, %{})
     end
 
-    test "returns :none when idle" do
-      ai = make_ai(%{state: :idle})
+    test "returns :none when idle with wandering disabled" do
+      ai = %{make_ai(%{state: :idle}) | wander_enabled: false}
       assert :none == AI.tick(ai, %{})
     end
 

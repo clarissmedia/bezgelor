@@ -34,10 +34,10 @@ defmodule BezgelorWorld.Quest.SessionQuestManager do
       end
   """
 
-  alias BezgelorWorld.Quest.QuestCache
+  alias BezgelorWorld.Quest.{QuestCache, QuestPersistence}
   alias BezgelorDb.{Achievements, Quests}
   alias BezgelorData.Store
-  alias BezgelorProtocol.Packets.World.{ServerQuestUpdate, ServerQuestAdd, ServerQuestRemove}
+  alias BezgelorProtocol.Packets.World.{ServerQuestStateChange, ServerQuestObjectiveUpdate}
   alias BezgelorProtocol.PacketWriter
 
   require Logger
@@ -182,6 +182,14 @@ defmodule BezgelorWorld.Quest.SessionQuestManager do
     # Check if any quests became completable
     updated_quests = check_all_completable(updated_quests)
 
+    state_packets =
+      for {quest_id, quest} <- updated_quests,
+          quest.state == :complete,
+          active_quests[quest_id].state != :complete,
+          do: build_quest_state_packet(quest_id, :complete)
+
+    packets = packets ++ state_packets
+
     updated_session = Map.put(session_data, :active_quests, updated_quests)
 
     # Mark session as dirty if we updated anything
@@ -230,13 +238,16 @@ defmodule BezgelorWorld.Quest.SessionQuestManager do
               end)
 
             progress = Quests.init_progress(objectives)
-            Quests.accept_quest(character_id, quest_id, progress: progress)
+            # Never acknowledge acceptance if its durable insert failed.
+            case Quests.accept_quest(character_id, quest_id, progress: progress) do
+              {:ok, _record} ->
+                packet = build_quest_state_packet(quest_id, :accepted)
+                Logger.info("Character #{character_id} accepted quest #{quest_id}")
+                {:ok, updated_session, packet}
 
-            # Build packet
-            packet = build_quest_add_packet(session_quest)
-
-            Logger.info("Character #{character_id} accepted quest #{quest_id}")
-            {:ok, updated_session, packet}
+              {:error, reason} ->
+                {:error, reason}
+            end
 
           {:error, reason} ->
             {:error, reason}
@@ -267,13 +278,15 @@ defmodule BezgelorWorld.Quest.SessionQuestManager do
         updated_session = Map.put(session_data, :active_quests, remaining_quests)
 
         # Remove from DB
-        Quests.abandon_quest(character_id, quest_id)
+        case Quests.abandon_quest(character_id, quest_id) do
+          {:ok, _record} ->
+            packet = build_quest_state_packet(quest_id, :abandoned)
+            Logger.info("Character #{character_id} abandoned quest #{quest_id}")
+            {:ok, updated_session, packet}
 
-        # Build packet
-        packet = build_quest_remove_packet(quest_id)
-
-        Logger.info("Character #{character_id} abandoned quest #{quest_id}")
-        {:ok, updated_session, packet}
+          {:error, reason} ->
+            {:error, reason}
+        end
     end
   end
 
@@ -299,7 +312,7 @@ defmodule BezgelorWorld.Quest.SessionQuestManager do
       %{state: state} when state != :complete ->
         {:error, :quest_not_complete}
 
-      _quest ->
+      quest ->
         # Remove from active, add to completed
         remaining_quests = Map.delete(active_quests, quest_id)
         updated_completed = MapSet.put(completed_ids, quest_id)
@@ -310,9 +323,17 @@ defmodule BezgelorWorld.Quest.SessionQuestManager do
           |> Map.put(:completed_quest_ids, updated_completed)
 
         # Persist to DB (this also moves to history)
-        case Quests.turn_in_quest(character_id, quest_id) do
+        # Objectives may have completed since the periodic persistence tick.
+        # Save progress and achieved state before the DB validates turn-in.
+        result =
+          with :ok <- QuestPersistence.persist_quest(character_id, quest),
+               {:ok, history} <- Quests.turn_in_quest(character_id, quest_id) do
+            {:ok, history}
+          end
+
+        case result do
           {:ok, _history} ->
-            packet = build_quest_remove_packet(quest_id)
+            packet = build_quest_state_packet(quest_id, :completed)
             Logger.info("Character #{character_id} completed quest #{quest_id}")
 
             # Broadcast achievement event for quest completion
@@ -400,7 +421,7 @@ defmodule BezgelorWorld.Quest.SessionQuestManager do
   defp check_all_completable(quests) do
     Map.new(quests, fn {quest_id, quest} ->
       if quest.state == :accepted and check_quest_completable(quest) do
-        {quest_id, %{quest | state: :complete}}
+        {quest_id, %{quest | state: :complete, dirty: true}}
       else
         {quest_id, quest}
       end
@@ -797,40 +818,22 @@ defmodule BezgelorWorld.Quest.SessionQuestManager do
   # Private - Packet Building
   # ============================================================================
 
-  defp build_quest_update_packet(quest_id, state, objective_index, current) do
-    packet = %ServerQuestUpdate{
+  defp build_quest_update_packet(quest_id, _state, objective_index, current) do
+    packet = %ServerQuestObjectiveUpdate{
       quest_id: quest_id,
-      state: state,
       objective_index: objective_index,
       current: current
     }
 
     writer = PacketWriter.new()
-    {:ok, writer} = ServerQuestUpdate.write(packet, writer)
-    {:server_quest_update, PacketWriter.to_binary(writer)}
+    {:ok, writer} = ServerQuestObjectiveUpdate.write(packet, writer)
+    {:server_quest_objective_update, PacketWriter.to_binary(writer)}
   end
 
-  defp build_quest_add_packet(session_quest) do
-    # Convert objectives to format expected by ServerQuestAdd
-    objectives =
-      Enum.map(session_quest.objectives, fn obj ->
-        %{target: obj.target}
-      end)
-
-    packet = %ServerQuestAdd{
-      quest_id: session_quest.quest_id,
-      objectives: objectives
-    }
-
+  defp build_quest_state_packet(quest_id, state) do
+    packet = %ServerQuestStateChange{quest_id: quest_id, state: state}
     writer = PacketWriter.new()
-    {:ok, writer} = ServerQuestAdd.write(packet, writer)
-    {:server_quest_add, PacketWriter.to_binary(writer)}
-  end
-
-  defp build_quest_remove_packet(quest_id) do
-    packet = %ServerQuestRemove{quest_id: quest_id}
-    writer = PacketWriter.new()
-    {:ok, writer} = ServerQuestRemove.write(packet, writer)
-    {:server_quest_remove, PacketWriter.to_binary(writer)}
+    {:ok, writer} = ServerQuestStateChange.write(packet, writer)
+    {:server_quest_state_change, PacketWriter.to_binary(writer)}
   end
 end

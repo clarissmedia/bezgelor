@@ -65,7 +65,8 @@ defmodule BezgelorProtocol.Connection do
     :encryption,
     :state,
     :session_data,
-    :quest_persist_timer
+    :quest_persist_timer,
+    :current_opcode
   ]
 
   @type connection_type :: :auth | :world
@@ -182,7 +183,11 @@ defmodule BezgelorProtocol.Connection do
 
     state =
       Enum.reduce(packets, state, fn {opcode, packet_data}, acc ->
-        do_send_packet(acc, opcode, packet_data)
+        if acc.connection_type == :world do
+          do_send_encrypted_world_packet(acc, opcode, packet_data)
+        else
+          do_send_packet(acc, opcode, packet_data)
+        end
       end)
 
     {:noreply, state}
@@ -516,7 +521,7 @@ defmodule BezgelorProtocol.Connection do
         {:ok, state}
 
       handler ->
-        result = handler.handle(payload, state)
+        result = handler.handle(payload, %{state | current_opcode: opcode_atom})
         elapsed_us = System.monotonic_time(:microsecond) - start_time
         elapsed_ms = elapsed_us / 1000
 

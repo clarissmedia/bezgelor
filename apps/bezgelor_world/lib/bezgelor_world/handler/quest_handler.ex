@@ -62,7 +62,7 @@ defmodule BezgelorWorld.Handler.QuestHandler do
   @impl true
   def handle(payload, state) do
     # Determine which packet type based on opcode in state
-    opcode = state[:current_opcode]
+    opcode = Map.get(state, :current_opcode)
     reader = PacketReader.new(payload)
 
     result =
@@ -98,7 +98,7 @@ defmodule BezgelorWorld.Handler.QuestHandler do
           {:ok, updated_session, {opcode, packet_data}} ->
             emit_quest_telemetry(:accepted, character_id, packet.quest_id)
             updated_state = %{state | session_data: updated_session}
-            {:reply, opcode, packet_data, updated_state}
+            {:reply_world_encrypted, opcode, packet_data, updated_state}
 
           {:error, :quest_log_full} ->
             Logger.warning("Quest log full for character #{character_id}")
@@ -128,7 +128,7 @@ defmodule BezgelorWorld.Handler.QuestHandler do
           {:ok, updated_session, {opcode, packet_data}} ->
             emit_quest_telemetry(:abandoned, character_id, packet.quest_id)
             updated_state = %{state | session_data: updated_session}
-            {:reply, opcode, packet_data, updated_state}
+            {:reply_world_encrypted, opcode, packet_data, updated_state}
 
           {:error, :quest_not_found} ->
             Logger.warning(
@@ -168,7 +168,7 @@ defmodule BezgelorWorld.Handler.QuestHandler do
                 Logger.warning("Failed to grant quest rewards: #{inspect(reason)}")
             end
 
-            {:reply, opcode, packet_data, updated_state}
+            {:reply_world_encrypted, opcode, packet_data, updated_state}
 
           {:error, :quest_not_found} ->
             Logger.warning(

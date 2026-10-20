@@ -258,6 +258,11 @@ defmodule BezgelorProtocol.Opcode do
   @client_npc_interact 0x07EA
 
   # Quest opcodes
+  @client_abandon_quest 0x035A
+  @client_accept_quest 0x035B
+  @server_quest_state_change 0x035C
+  @client_turn_in_quest 0x035D
+  @server_quest_objective_update 0x0361
   @server_quest_offer 0x0351
   # ServerQuestInit in NexusForever
   @server_quest_list 0x035F
@@ -500,6 +505,11 @@ defmodule BezgelorProtocol.Opcode do
     # NPC interaction
     client_npc_interact: @client_npc_interact,
     # Quests
+    client_abandon_quest: @client_abandon_quest,
+    client_accept_quest: @client_accept_quest,
+    client_turn_in_quest: @client_turn_in_quest,
+    server_quest_state_change: @server_quest_state_change,
+    server_quest_objective_update: @server_quest_objective_update,
     server_quest_offer: @server_quest_offer,
     server_quest_list: @server_quest_list,
     # Abilities
@@ -723,6 +733,11 @@ defmodule BezgelorProtocol.Opcode do
     # NPC interaction
     client_npc_interact: "ClientNpcInteract",
     # Quests
+    client_abandon_quest: "ClientQuestAbandon",
+    client_accept_quest: "ClientQuestAccept",
+    client_turn_in_quest: "ClientQuestComplete",
+    server_quest_state_change: "ServerQuestStateChange",
+    server_quest_objective_update: "ServerQuestObjectiveUpdate",
     server_quest_offer: "ServerQuestOffer",
     server_quest_list: "ServerQuestList",
     # Abilities

@@ -124,6 +124,7 @@ defmodule BezgelorProtocol.Handler.WorldEntryHandler do
 
     # Build quest list packet
     quest_list_packet = build_quest_list_packet(active_quests)
+    quest_list_packet = %{quest_list_packet | completed: MapSet.to_list(completed_quest_ids)}
     quest_writer = PacketWriter.new()
     {:ok, quest_writer} = ServerQuestList.write(quest_list_packet, quest_writer)
     quest_packet_data = PacketWriter.to_binary(quest_writer)
@@ -204,7 +205,10 @@ defmodule BezgelorProtocol.Handler.WorldEntryHandler do
     cinematic_packets = build_cinematic_packets(state.session_data, zone_id)
 
     # Build creature spawn packets for creatures near the player
-    creature_packets = build_creature_packets({world_id, instance_id}, spawn.position)
+    {creature_packets, visible_guids} =
+      build_creature_packets({world_id, instance_id}, spawn.position)
+
+    state = put_in(state.session_data[:visible_creature_guids], visible_guids)
 
     Logger.debug(
       "Sending #{length(creature_packets)} creature entity packets to player at #{inspect(spawn.position)}"
@@ -213,7 +217,9 @@ defmodule BezgelorProtocol.Handler.WorldEntryHandler do
     {ability_packets, action_set_shortcuts} = BezgelorProtocol.AbilityPackets.build(character)
 
     # Store action set shortcuts in session_data for spell casting resolution
-    updated_session_data = Map.put(state.session_data, :action_set_shortcuts, action_set_shortcuts)
+    updated_session_data =
+      Map.put(state.session_data, :action_set_shortcuts, action_set_shortcuts)
+
     state = %{state | session_data: updated_session_data}
 
     # Base packets always sent
@@ -327,7 +333,7 @@ defmodule BezgelorProtocol.Handler.WorldEntryHandler do
       )
 
     Logger.info("Zone entry packets: #{inspect(stats)}")
-    packets
+    {packets, MapSet.new(creatures, & &1.entity.guid)}
   end
 
   # Build patrol movement packet for a creature that should start patrolling

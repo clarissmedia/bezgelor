@@ -10,10 +10,23 @@ defmodule BezgelorData.StoreQuestTest do
 
   # Pre-computed field keys for test assertions
   @quest_given_keys for i <- 0..24,
-                        do: String.to_atom("questIdGiven#{String.pad_leading(Integer.to_string(i), 2, "0")}")
+                        do:
+                          String.to_atom(
+                            "questIdGiven#{String.pad_leading(Integer.to_string(i), 2, "0")}"
+                          )
   @quest_receive_keys for i <- 0..24,
-                          do: String.to_atom("questIdReceive#{String.pad_leading(Integer.to_string(i), 2, "0")}")
-  @objective_keys for i <- 0..5, do: String.to_atom("objective#{i}")
+                          do:
+                            String.to_atom(
+                              "questIdReceive#{String.pad_leading(Integer.to_string(i), 2, "0")}"
+                            )
+  @objective_keys [
+    :objective0,
+    :objective01,
+    :objective02,
+    :objective03,
+    :objective04,
+    :objective05
+  ]
 
   describe "get_quests_for_creature_giver/1" do
     test "returns quest IDs for creature that gives quests" do

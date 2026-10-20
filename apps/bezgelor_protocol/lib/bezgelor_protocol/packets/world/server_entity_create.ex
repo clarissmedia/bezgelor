@@ -435,7 +435,7 @@ defmodule BezgelorProtocol.Packets.World.ServerEntityCreate do
     require Logger
 
     # Generate GUID for player entity
-    player_guid = character.id + 0x2000_0000
+    player_guid = BezgelorCore.EntityGuid.new(:player, character.id)
 
     # Extract position and rotation from spawn tuples
     {x, y, z} = spawn.position

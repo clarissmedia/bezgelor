@@ -15,13 +15,10 @@ defmodule BezgelorCore.Entity do
 
   ## GUID Structure
 
-  GUIDs are 64-bit identifiers combining:
-  - Entity type (high 4 bits)
-  - Server ID (next 12 bits)
-  - Unique counter (low 48 bits)
+  Wire entity GUIDs are 32-bit identifiers combining:
+  - Entity type (high 3 bits)
+  - Nonzero counter (low 29 bits)
   """
-
-  import Bitwise
 
   @type entity_type :: :player | :creature | :object | :vehicle | :corpse
 
@@ -237,10 +234,8 @@ defmodule BezgelorCore.Entity do
   # Generate a unique GUID for corpse entities
   # Uses a simple counter + timestamp approach
   defp generate_corpse_guid do
-    # Corpse GUID format: type (5) in high bits + unique counter
-    type_bits = @entity_type_corpse <<< 60
     unique = :erlang.unique_integer([:positive, :monotonic])
-    type_bits ||| (unique &&& 0x0FFFFFFFFFFFFFFF)
+    BezgelorCore.EntityGuid.new(:corpse, unique)
   end
 
   @doc """

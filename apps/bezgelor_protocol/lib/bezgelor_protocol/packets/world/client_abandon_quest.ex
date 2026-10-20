@@ -3,7 +3,7 @@ defmodule BezgelorProtocol.Packets.World.ClientAbandonQuest do
   Client abandons a quest.
 
   ## Wire Format
-  quest_id : uint32
+  quest_id : 15 bits
   """
   @behaviour BezgelorProtocol.Packet.Readable
 
@@ -16,7 +16,7 @@ defmodule BezgelorProtocol.Packets.World.ClientAbandonQuest do
 
   @impl true
   def read(reader) do
-    with {:ok, quest_id, reader} <- PacketReader.read_uint32(reader) do
+    with {:ok, quest_id, reader} <- PacketReader.read_bits(reader, 15) do
       {:ok, %__MODULE__{quest_id: quest_id}, reader}
     end
   end

@@ -271,27 +271,26 @@ defmodule BezgelorProtocol.Packets.QuestPacketsTest do
 
   describe "ClientAcceptQuest" do
     test "reads accept quest packet" do
-      # Build binary: quest_id(4) + npc_guid(8) = 12 bytes
-      quest_id = 5861
-      npc_guid = 0x0001000000000001
-
-      binary = <<quest_id::little-32, npc_guid::little-64>>
+      # NexusForever ItemLocation(9 + 32 bits), QuestId(15 bits).
+      binary = Base.decode16!("2CF1AC6824CA2D", case: :mixed)
       reader = PacketReader.new(binary)
 
       {:ok, packet, _reader} = ClientAcceptQuest.read(reader)
 
       assert packet.quest_id == 5861
-      assert packet.npc_guid == npc_guid
+      assert packet.inventory_location == 300
+      assert packet.bag_index == 0x12345678
     end
 
-    test "reads quest with zero npc_guid" do
-      binary = <<100::little-32, 0::little-64>>
+    test "reads quest with no source item" do
+      binary = Base.decode16!("2C01000000C800", case: :mixed)
       reader = PacketReader.new(binary)
 
       {:ok, packet, _reader} = ClientAcceptQuest.read(reader)
 
       assert packet.quest_id == 100
-      assert packet.npc_guid == 0
+      assert packet.inventory_location == 300
+      assert packet.bag_index == 0
     end
 
     test "returns correct opcode" do
@@ -305,7 +304,7 @@ defmodule BezgelorProtocol.Packets.QuestPacketsTest do
 
   describe "ClientAbandonQuest" do
     test "reads abandon quest packet" do
-      binary = <<5861::little-32>>
+      binary = <<5861::little-16>>
       reader = PacketReader.new(binary)
 
       {:ok, packet, _reader} = ClientAbandonQuest.read(reader)
@@ -324,28 +323,18 @@ defmodule BezgelorProtocol.Packets.QuestPacketsTest do
 
   describe "ClientTurnInQuest" do
     test "reads turn in quest packet" do
-      quest_id = 5861
-      npc_guid = 0x0001000000000002
-      reward_choice = 0
-
-      # quest_id(4) + npc_guid(8) + reward_choice(1) = 13 bytes
-      binary = <<quest_id::little-32, npc_guid::little-64, reward_choice::8>>
+      binary = Base.decode16!("E5160140", case: :mixed)
       reader = PacketReader.new(binary)
 
       {:ok, packet, _reader} = ClientTurnInQuest.read(reader)
 
       assert packet.quest_id == 5861
-      assert packet.npc_guid == npc_guid
-      assert packet.reward_choice == 0
+      assert packet.is_communique
+      assert packet.reward_choice == 2
     end
 
     test "reads turn in with reward choice" do
-      quest_id = 100
-      npc_guid = 0x0001000000000003
-      # Second reward option
-      reward_choice = 2
-
-      binary = <<quest_id::little-32, npc_guid::little-64, reward_choice::8>>
+      binary = <<100, 0, 1, 0>>
       reader = PacketReader.new(binary)
 
       {:ok, packet, _reader} = ClientTurnInQuest.read(reader)

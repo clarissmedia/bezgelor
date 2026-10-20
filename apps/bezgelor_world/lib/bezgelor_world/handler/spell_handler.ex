@@ -187,7 +187,7 @@ defmodule BezgelorWorld.Handler.SpellHandler do
     end
   end
 
-  defp handle_instant_cast(spell, _packet, player_guid, result, state) do
+  defp handle_instant_cast(spell, packet, player_guid, result, state) do
     # Get caster info from session
     position = state.session_data[:position] || {0.0, 0.0, 0.0}
     yaw = state.session_data[:yaw] || 0.0
@@ -227,16 +227,18 @@ defmodule BezgelorWorld.Handler.SpellHandler do
       end
 
     # Build and send ServerSpellStart
-    spell_start = ServerSpellStart.new(
-      casting_id: casting_id,
-      spell4_id: spell.id,
-      caster_id: caster_id,
-      primary_target_id: caster_id,
-      position: position,
-      yaw: yaw,
-      user_initiated: true,
-      telegraph_positions: start_telegraph_positions
-    )
+    spell_start =
+      ServerSpellStart.new(
+        casting_id: casting_id,
+        spell4_id: spell.id,
+        caster_id: caster_id,
+        primary_target_id:
+          if(spell.target_type == :self, do: caster_id, else: packet.target_guid),
+        position: position,
+        yaw: yaw,
+        user_initiated: true,
+        telegraph_positions: start_telegraph_positions
+      )
 
     # Build ServerSpellGo - set primary_destination to teleport target for Gate
     # For Gate, include telegraph position at the destination
@@ -257,28 +259,28 @@ defmodule BezgelorWorld.Handler.SpellHandler do
         []
       end
 
-    spell_go = ServerSpellGo.new(
-      casting_id: casting_id,
-      caster_id: caster_id,
-      position: position,
-      yaw: yaw,
-      destination: destination,
-      telegraph_positions: telegraph_positions
-    )
+    spell_go =
+      ServerSpellGo.new(
+        casting_id: casting_id,
+        caster_id: caster_id,
+        position: position,
+        yaw: yaw,
+        destination: destination,
+        telegraph_positions: telegraph_positions
+      )
 
     # Get world context for creature damage
     world_id = state.session_data[:world_id] || 1
-    instance_id = 1
+    instance_id = state.session_data[:instance_id] || 1
     world_key = {world_id, instance_id}
 
     # Apply effects to targets and collect kill info
     {_effect_packets, kill_info} =
-      apply_spell_effects(player_guid, player_guid, spell, result.effects, world_key)
+      apply_spell_effects(player_guid, packet.target_guid, spell, result.effects, world_key)
 
     # Broadcast kill rewards if creature was killed
     if kill_info do
-      zone_id = state.session_data[:zone_id] || 1
-      instance_id = state.session_data[:zone_instance_id] || 1
+      zone_id = world_id
       participant_ids = kill_info.rewards[:participant_character_ids] || []
 
       CombatBroadcaster.broadcast_entity_death(
@@ -575,10 +577,9 @@ defmodule BezgelorWorld.Handler.SpellHandler do
     end
   end
 
-  # Check if GUID is a creature (type bits = 2 in bits 60-63)
+  # Entity IDs must be interpreted in the same uint32 space as wire packets.
   defp is_creature_guid?(guid) when is_integer(guid) and guid > 0 do
-    type_bits = bsr(guid, 60) &&& 0xF
-    type_bits == 2
+    BezgelorCore.EntityGuid.type(guid) == :creature
   end
 
   defp is_creature_guid?(_), do: false
@@ -593,15 +594,16 @@ defmodule BezgelorWorld.Handler.SpellHandler do
     casting_id = :erlang.unique_integer([:positive, :monotonic]) &&& 0xFFFFFFFF
 
     # Build ServerSpellStart with proper format
-    start_packet = ServerSpellStart.new(
-      casting_id: casting_id,
-      spell4_id: spell.id,
-      caster_id: caster_id,
-      primary_target_id: caster_id,
-      position: position,
-      yaw: yaw,
-      user_initiated: true
-    )
+    start_packet =
+      ServerSpellStart.new(
+        casting_id: casting_id,
+        spell4_id: spell.id,
+        caster_id: caster_id,
+        primary_target_id: caster_id,
+        position: position,
+        yaw: yaw,
+        user_initiated: true
+      )
 
     send_packet(:server_spell_start, start_packet, state)
   end
@@ -687,10 +689,10 @@ defmodule BezgelorWorld.Handler.SpellHandler do
     # Send extra packets (like teleport) BEFORE spell packets so movement happens first
     packets =
       extra_packets ++
-      [
-        {:server_spell_start, start_data},
-        {:server_spell_go, go_data}
-      ]
+        [
+          {:server_spell_start, start_data},
+          {:server_spell_go, go_data}
+        ]
 
     {:reply_multi_world_encrypted, packets, state}
   end

@@ -29,7 +29,7 @@ defmodule BezgelorProtocol.Handler.EntitySelectHandler do
       Logger.debug("[EntitySelect] #{player_name} (#{player_guid}) deselected target")
     end
 
-    {:ok, state}
+    {:ok, put_in(state.session_data[:target_guid], packet.guid)}
   end
 
   defp log_entity_selection(player_name, player_guid, target_guid, state) do

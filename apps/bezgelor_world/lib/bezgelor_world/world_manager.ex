@@ -31,8 +31,6 @@ defmodule BezgelorWorld.WorldManager do
 
   use GenServer
 
-  import Bitwise
-
   require Logger
 
   @type session :: %{
@@ -52,12 +50,6 @@ defmodule BezgelorWorld.WorldManager do
           entities: %{non_neg_integer() => any()},
           next_guid_counter: non_neg_integer()
         }
-
-  # Entity type bits
-  @entity_type_player 1
-  @entity_type_creature 2
-  @entity_type_object 3
-  @entity_type_vehicle 4
 
   ## Client API
 
@@ -197,11 +189,14 @@ defmodule BezgelorWorld.WorldManager do
 
   @impl true
   def handle_call({:generate_guid, entity_type}, _from, state) do
-    type_bits = entity_type_to_bits(entity_type)
+    # Validate/normalize the existing API's entity type.
+    type =
+      if entity_type in [:player, :creature, :object, :vehicle], do: entity_type, else: :object
+
     counter = state.next_guid_counter
 
-    # Format: [type:4][reserved:12][counter:48]
-    guid = bsl(type_bits, 60) ||| (counter &&& 0xFFFFFFFFFFFF)
+    # Keep the server map key identical to the uint32 transmitted to the client.
+    guid = BezgelorCore.EntityGuid.new(type, counter)
 
     {:reply, guid, %{state | next_guid_counter: counter + 1}}
   end
@@ -441,12 +436,6 @@ defmodule BezgelorWorld.WorldManager do
   end
 
   # Private
-
-  defp entity_type_to_bits(:player), do: @entity_type_player
-  defp entity_type_to_bits(:creature), do: @entity_type_creature
-  defp entity_type_to_bits(:object), do: @entity_type_object
-  defp entity_type_to_bits(:vehicle), do: @entity_type_vehicle
-  defp entity_type_to_bits(_), do: @entity_type_object
 
   defp find_session_by_name_in_state(sessions, name_to_account, character_name) do
     # O(1) lookup using name index

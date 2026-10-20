@@ -47,7 +47,8 @@ defmodule BezgelorProtocol.Handler.EntityCommandHandler do
   """
 
   @behaviour BezgelorProtocol.Handler
-  @compile {:no_warn_undefined, [BezgelorWorld.VisibilityBroadcaster]}
+  @compile {:no_warn_undefined,
+            [BezgelorWorld.VisibilityBroadcaster, BezgelorWorld.World.Instance]}
 
   alias BezgelorProtocol.PacketReader
   alias BezgelorWorld.VisibilityBroadcaster
@@ -59,15 +60,15 @@ defmodule BezgelorProtocol.Handler.EntityCommandHandler do
     reader = PacketReader.new(payload)
 
     with {:ok, time, reader} <- PacketReader.read_uint32(reader),
-         {:ok, command_count, reader} <- PacketReader.read_uint32(reader) do
+         {:ok, command_count, reader} <- PacketReader.read_uint32(reader),
+         true <- command_count <= 31,
+         {:ok, commands} <- decode_commands(reader, command_count) do
       if command_count > 0 do
         Logger.debug("[EntityCommand] Received #{command_count} commands at time #{time}")
-
-        # Parse commands for debugging (simplified - doesn't handle all command types)
-        _commands = parse_commands(reader, command_count)
       end
 
       # Broadcast movement to other players in zone
+      state = update_server_position(commands, state)
       broadcast_movement(payload, state)
 
       # Position persistence handled by:
@@ -77,6 +78,10 @@ defmodule BezgelorProtocol.Handler.EntityCommandHandler do
 
       {:ok, state}
     else
+      false ->
+        Logger.warning("[EntityCommand] Too many commands to relay")
+        {:ok, state}
+
       {:error, reason} ->
         Logger.warning("[EntityCommand] Failed to parse: #{inspect(reason)}")
         {:ok, state}
@@ -86,7 +91,7 @@ defmodule BezgelorProtocol.Handler.EntityCommandHandler do
   # Broadcast player movement to other players in the same zone
   defp broadcast_movement(payload, state) do
     entity_guid = state.session_data[:entity_guid]
-    zone_id = state.session_data[:zone_id]
+    zone_id = state.session_data[:world_id]
     instance_id = state.session_data[:instance_id] || 1
 
     if entity_guid && zone_id do
@@ -142,8 +147,10 @@ defmodule BezgelorProtocol.Handler.EntityCommandHandler do
 
             # The command data format is the same between client and server
             # so we can append the raw command bytes
-            writer = PacketWriter.flush_bits(writer)
-            PacketWriter.to_binary(writer) <> commands_data
+            writer =
+              writer |> PacketWriter.write_bytes_bits(commands_data) |> PacketWriter.flush_bits()
+
+            PacketWriter.to_binary(writer)
 
           _ ->
             # Fallback: just prepend guid to original payload
@@ -156,21 +163,94 @@ defmodule BezgelorProtocol.Handler.EntityCommandHandler do
     end
   end
 
-  defp parse_commands(_reader, 0), do: []
+  defp decode_commands(reader, count) do
+    case BezgelorProtocol.EntityCommandDecoder.read(reader, count) do
+      {:ok, commands, _reader} ->
+        {:ok, commands}
 
-  defp parse_commands(reader, count) do
-    # Read command type (5 bits)
-    case PacketReader.read_bits(reader, 5) do
-      {:ok, command_type, reader} ->
-        Logger.debug("[EntityCommand] Command type: #{command_type}")
+      {:unsupported, type, commands} ->
+        Logger.debug("EntityCommand model #{type} not decoded; retaining verified prefix only")
+        {:ok, commands}
 
-        # For now, just skip the rest - full parsing would depend on command_type
-        # Each command type has a different structure
-        [{command_type, nil} | parse_commands(reader, count - 1)]
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
 
-      {:error, _reason} ->
-        # End of data
-        []
+  defp update_server_position(commands, state) do
+    Enum.reduce(commands, state, fn
+      %{type: 2, vector: position}, acc ->
+        update_position(position, acc)
+
+      %{type: 14, vector: rotation}, acc ->
+        acc = put_in(acc.session_data[:rotation], rotation)
+
+        case acc.session_data[:entity] do
+          nil -> acc
+          entity -> put_in(acc.session_data[:entity], %{entity | rotation: rotation})
+        end
+
+      _command, acc ->
+        acc
+    end)
+  end
+
+  defp update_position(position, state) do
+    world_id = state.session_data[:world_id]
+    guid = state.session_data[:entity_guid]
+
+    if state.session_data[:in_world] == true and not is_nil(world_id) and not is_nil(guid) do
+      key = {world_id, state.session_data[:instance_id] || 1}
+
+      case BezgelorWorld.World.Instance.update_entity_position(key, guid, position) do
+        :ok -> persist_position(position, state)
+        :error -> state
+      end
+    else
+      state
+    end
+  end
+
+  defp persist_position(position, state) do
+    {session, packets} = BezgelorProtocol.CreatureVisibility.refresh(state.session_data, position)
+    Enum.each(packets, fn {opcode, payload} -> send(self(), {:send_packet, opcode, payload}) end)
+    state = %{state | session_data: session}
+    state = put_in(state.session_data[:position], position)
+
+    state =
+      case state.session_data[:entity] do
+        nil -> state
+        entity -> put_in(state.session_data[:entity], %{entity | position: position})
+      end
+
+    # Use nil for the initial save: monotonic time can be negative.
+    now = System.monotonic_time(:millisecond)
+    last = state.session_data[:last_position_save]
+
+    if is_nil(last) or now - last >= 5_000 do
+      character_id = state.session_data[:character_id]
+      {x, y, z} = position
+
+      case BezgelorDb.Characters.get_character(character_id) do
+        nil ->
+          state
+
+        character ->
+          case BezgelorDb.Characters.update_position(character, %{
+                 location_x: x,
+                 location_y: y,
+                 location_z: z
+               }) do
+            {:ok, _character} ->
+              put_in(state.session_data[:last_position_save], now)
+
+            {:error, reason} ->
+              Logger.warning("Position persistence failed: #{inspect(reason)}")
+              state
+          end
+      end
+    else
+      state
     end
   end
 end

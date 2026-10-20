@@ -8,7 +8,7 @@ defmodule BezgelorWorld.Handler.QuestHandlerTest do
   alias BezgelorWorld.Quest.SessionQuestManager
 
   describe "handle_accept_packet via handler" do
-    test "accepts quest and updates session_data" do
+    test "rejects a truncated acceptance packet" do
       # Create a mock state with session_data
       session_data = %{
         character_id: 1,
@@ -21,26 +21,11 @@ defmodule BezgelorWorld.Handler.QuestHandlerTest do
         session_data: session_data
       }
 
-      # Build a mock accept quest packet
-      # Quest ID 5861 is known to exist in test data
+      # The valid acceptance packet needs 56 bits, not an isolated quest ID.
       quest_id = 5861
       payload = <<quest_id::little-32>>
 
-      result = QuestHandler.handle(payload, state)
-
-      case result do
-        {:reply, opcode, _packet_data, updated_state} ->
-          assert opcode == :server_quest_add
-          assert Map.has_key?(updated_state.session_data[:active_quests], quest_id)
-
-        {:ok, _state} ->
-          # Quest might fail to accept if data not loaded - that's ok for unit test
-          :ok
-
-        {:error, _reason} ->
-          # Parse error is acceptable in unit test without full setup
-          :ok
-      end
+      assert {:error, :eof} = QuestHandler.handle(payload, state)
     end
   end
 
@@ -59,7 +44,7 @@ defmodule BezgelorWorld.Handler.QuestHandlerTest do
 
       case SessionQuestManager.accept_quest(session_data, character_id, quest_id) do
         {:ok, updated_session, {opcode, _packet}} ->
-          assert opcode == :server_quest_add
+          assert opcode == :server_quest_state_change
           assert Map.has_key?(updated_session[:active_quests], quest_id)
 
           quest = updated_session[:active_quests][quest_id]
@@ -91,7 +76,7 @@ defmodule BezgelorWorld.Handler.QuestHandlerTest do
 
       case SessionQuestManager.abandon_quest(session_data, character_id, quest_id) do
         {:ok, updated_session, {opcode, _packet}} ->
-          assert opcode == :server_quest_remove
+          assert opcode == :server_quest_state_change
           refute Map.has_key?(updated_session[:active_quests], quest_id)
 
         {:error, reason} ->
@@ -129,7 +114,7 @@ defmodule BezgelorWorld.Handler.QuestHandlerTest do
 
       case SessionQuestManager.turn_in_quest(session_data, character_id, quest_id) do
         {:ok, updated_session, {opcode, _packet}} ->
-          assert opcode == :server_quest_remove
+          assert opcode == :server_quest_state_change
           refute Map.has_key?(updated_session[:active_quests], quest_id)
           assert MapSet.member?(updated_session[:completed_quest_ids], quest_id)
 

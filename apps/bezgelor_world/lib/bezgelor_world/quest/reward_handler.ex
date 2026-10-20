@@ -64,7 +64,13 @@ defmodule BezgelorWorld.Quest.RewardHandler do
       table_rewards = Store.get_quest_rewards(quest_id)
 
       rewards_summary =
-        grant_table_rewards(connection_pid, character_id, quest_id, table_rewards, rewards_summary)
+        grant_table_rewards(
+          connection_pid,
+          character_id,
+          quest_id,
+          table_rewards,
+          rewards_summary
+        )
 
       Logger.info(
         "Quest #{quest_id} rewards granted to #{character_id}: " <>
@@ -97,19 +103,35 @@ defmodule BezgelorWorld.Quest.RewardHandler do
       # Calculate actual XP based on character level and quest level
       actual_xp = calculate_xp_reward(character_id, quest, xp)
 
-      # Grant XP via CombatBroadcaster (uses existing XP system)
-      if actual_xp > 0 do
-        CombatBroadcaster.send_xp_gain(
-          get_player_guid(character_id),
-          actual_xp,
-          :quest,
-          0
-        )
-      end
+      # The notification does not persist XP. Save it before acknowledging the reward.
+      case persist_quest_xp(character_id, actual_xp) do
+        :ok ->
+          if actual_xp > 0 do
+            CombatBroadcaster.send_xp_gain(get_player_guid(character_id), actual_xp, :quest, 0)
+          end
 
-      %{summary | xp: summary.xp + actual_xp}
+          %{summary | xp: summary.xp + actual_xp}
+
+        {:error, reason} ->
+          Logger.warning("Failed to grant quest XP: #{inspect(reason)}")
+          summary
+      end
     else
       summary
+    end
+  end
+
+  defp persist_quest_xp(character_id, amount) do
+    case Characters.get_character(character_id) do
+      nil ->
+        {:error, :character_not_found}
+
+      character ->
+        case Characters.add_experience(character, amount) do
+          {:ok, _updated} -> :ok
+          {:ok, _updated, level_up: true} -> :ok
+          {:error, reason} -> {:error, reason}
+        end
     end
   end
 

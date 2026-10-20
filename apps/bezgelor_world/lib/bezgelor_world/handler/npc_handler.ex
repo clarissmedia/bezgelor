@@ -70,12 +70,15 @@ defmodule BezgelorWorld.Handler.NpcHandler do
     end
 
     # Route based on interaction event type
-    case packet.event do
-      37 ->
+    case {npc_guid, packet.event} do
+      {0, _event} ->
+        Logger.debug("Ignoring empty NPC interaction (GUID 0)")
+
+      {_guid, 37} when not is_nil(creature_id) ->
         # Dialogue - just send dialog start, client handles the rest
         send_dialog_start(connection_pid, npc_guid)
 
-      49 ->
+      {_guid, 49} ->
         # Vendor
         if creature_id, do: handle_vendor(connection_pid, character_id, creature_id, npc_guid)
 
@@ -295,7 +298,11 @@ defmodule BezgelorWorld.Handler.NpcHandler do
   # This depends on how GUIDs are structured in the zone instance
   defp extract_creature_id(guid, session_data) do
     # The zone instance should maintain a mapping of GUID -> creature_id
-    zone_instance = session_data[:zone_instance]
+    zone_instance =
+      session_data[:zone_instance] ||
+        if session_data[:world_id] do
+          {session_data[:world_id], session_data[:instance_id] || 1}
+        end
 
     if zone_instance do
       # Try to get from zone's entity registry
@@ -304,24 +311,7 @@ defmodule BezgelorWorld.Handler.NpcHandler do
         :error -> nil
       end
     else
-      # Fallback: try to decode from GUID format
-      # WildStar GUIDs often encode entity type and ID
-      decode_creature_id_from_guid(guid)
-    end
-  end
-
-  # Attempt to decode creature ID from GUID structure
-  defp decode_creature_id_from_guid(guid) when is_integer(guid) do
-    # GUID format: upper bits = type, lower bits = ID
-    # This is a simplified example - real format depends on WildStar protocol
-    creature_id = Bitwise.band(guid, 0xFFFFFFFF)
-
-    if creature_id > 0 and creature_id < 100_000 do
-      creature_id
-    else
       nil
     end
   end
-
-  defp decode_creature_id_from_guid(_), do: nil
 end

@@ -142,10 +142,17 @@ defmodule BezgelorWorld.Quest.SessionQuestManagerTest do
           %{creature_id: 12345}
         )
 
-      # Should not process since already at target
+      # Reconcile a full objective with its still-accepted quest state once.
       quest = updated_session.active_quests[100]
       assert Enum.at(quest.objectives, 0).current == 5
-      assert packets == []
+      assert [{:server_quest_state_change, _}] = packets
+      assert quest.state == :complete
+      assert quest.dirty
+
+      {_session, repeated_packets} =
+        SessionQuestManager.process_game_event(updated_session, :kill, %{creature_id: 12345})
+
+      assert repeated_packets == []
     end
 
     test "skips completed quests" do
@@ -334,7 +341,7 @@ defmodule BezgelorWorld.Quest.SessionQuestManagerTest do
       quest = updated_session.active_quests[100]
       assert quest.dirty == true
       assert Enum.at(quest.objectives, 0).current == 1
-      assert length(packets) == 1
+      assert [{:server_quest_objective_update, _}, {:server_quest_state_change, _}] = packets
     end
   end
 
@@ -363,7 +370,7 @@ defmodule BezgelorWorld.Quest.SessionQuestManagerTest do
 
       quest = updated_session.active_quests[100]
       assert Enum.at(quest.objectives, 0).current == 1
-      assert length(packets) == 1
+      assert [{:server_quest_objective_update, _}, {:server_quest_state_change, _}] = packets
     end
   end
 end

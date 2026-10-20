@@ -28,6 +28,7 @@ beads.right.meta.json
 
 # Interaction audit log (local only, changes constantly)
 interactions.jsonl
+last-touched
 
 # Keep JSONL exports and config (source of truth for git)
 !issues.jsonl

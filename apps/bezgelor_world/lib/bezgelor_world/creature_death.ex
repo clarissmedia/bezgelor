@@ -9,8 +9,6 @@ defmodule BezgelorWorld.CreatureDeath do
   alias BezgelorCore.AI
   alias BezgelorWorld.{CombatParticipants, CorpseManager, Loot}
 
-  import Bitwise
-
   require Logger
 
   @telemetry_events [
@@ -191,13 +189,11 @@ defmodule BezgelorWorld.CreatureDeath do
   @doc """
   Check if a GUID belongs to a player entity.
 
-  Player GUIDs have type bits = 1 in bits 60-63.
+  Player entity IDs use the 32-bit wire namespace, including stable character IDs.
   """
   @spec is_player_guid?(non_neg_integer()) :: boolean()
   def is_player_guid?(guid) when is_integer(guid) do
-    # Extract type from bits 60-63
-    type = guid >>> 60 &&& 0xF
-    type == 1
+    BezgelorCore.EntityGuid.type(guid) == :player
   end
 
   def is_player_guid?(_), do: false

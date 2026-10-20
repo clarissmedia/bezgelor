@@ -10,8 +10,8 @@ defmodule BezgelorProtocol.Packets.World.ServerEntityDestroy do
   ## Wire Format
 
   ```
-  guid   : uint64 - Entity GUID to remove
-  reason : uint32 - Removal reason code
+  guid     : uint32 - Entity GUID to remove
+  unknown0 : 1 bit (false)
   ```
 
   ## Reason Codes
@@ -52,12 +52,11 @@ defmodule BezgelorProtocol.Packets.World.ServerEntityDestroy do
   @impl true
   @spec write(t(), PacketWriter.t()) :: {:ok, PacketWriter.t()}
   def write(%__MODULE__{} = packet, writer) do
-    reason_code = reason_to_code(packet.reason)
-
     writer =
       writer
-      |> PacketWriter.write_u64(packet.guid)
-      |> PacketWriter.write_u32(reason_code)
+      |> PacketWriter.write_u32(packet.guid)
+      |> PacketWriter.write_bits(0, 1)
+      |> PacketWriter.flush_bits()
 
     {:ok, writer}
   end
