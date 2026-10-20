@@ -191,7 +191,8 @@ defmodule BezgelorWorld.SpellManager do
 
   @impl true
   def handle_call(
-        {:cast_spell, player_guid, spell_id, target_guid, target_position, caster_stats, owner_pid},
+        {:cast_spell, player_guid, spell_id, target_guid, target_position, caster_stats,
+         owner_pid},
         _from,
         state
       ) do
@@ -207,7 +208,15 @@ defmodule BezgelorWorld.SpellManager do
         else
           # Cast time spell - start casting
           {player, _timer_ref} =
-            start_cast(spell, target_guid, target_position, player, player_guid, caster_stats, owner_pid)
+            start_cast(
+              spell,
+              target_guid,
+              target_position,
+              player,
+              player_guid,
+              caster_stats,
+              owner_pid
+            )
 
           state = put_player_state(state, player_guid, player)
           {:reply, {:ok, :casting, spell.cast_time}, state}
@@ -252,7 +261,12 @@ defmodule BezgelorWorld.SpellManager do
   def handle_call({:spell_ready?, player_guid, spell_id}, _from, state) do
     player = get_player_state(state, player_guid)
     spell = Spell.get(spell_id)
-    ready = spell != nil and Cooldown.can_cast?(player.cooldowns, spell_id, spell.gcd)
+
+    ready =
+      spell != nil and
+        BezgelorCore.Spell4CombatSupport.execution_blocker(spell_id) == nil and
+        Cooldown.can_cast?(player.cooldowns, spell_id, spell.gcd)
+
     {:reply, ready, state}
   end
 
@@ -300,10 +314,13 @@ defmodule BezgelorWorld.SpellManager do
         # Only the active cast token may emit a completion. The connection
         # performs the actual world-state effects and packet transmission.
         if is_pid(cast.owner_pid) do
-          send(cast.owner_pid, {:spell_cast_completed, player_guid, spell_id,
-            cast.target_guid, cast.target_position, calculate_effects(spell, cast.caster_stats),
-            cast.casting_id})
+          send(
+            cast.owner_pid,
+            {:spell_cast_completed, player_guid, spell_id, cast.target_guid, cast.target_position,
+             calculate_effects(spell, cast.caster_stats), cast.casting_id}
+          )
         end
+
         Logger.debug("Cast completed: player #{player_guid} spell #{spell_id}")
 
         {:noreply, state}
@@ -330,6 +347,9 @@ defmodule BezgelorWorld.SpellManager do
     cond do
       spell == nil ->
         {:error, :not_known}
+
+      BezgelorCore.Spell4CombatSupport.execution_blocker(spell_id) != nil ->
+        {:error, :unverified_spell4_combat}
 
       player.cast != nil ->
         {:error, :already_casting}
@@ -368,9 +388,18 @@ defmodule BezgelorWorld.SpellManager do
     {result, player}
   end
 
-  defp start_cast(spell, target_guid, target_position, player, player_guid, caster_stats, owner_pid) do
+  defp start_cast(
+         spell,
+         target_guid,
+         target_position,
+         player,
+         player_guid,
+         caster_stats,
+         owner_pid
+       ) do
     # The reference prevents cancelled/replaced casts from completing later.
     token = make_ref()
+
     timer_ref =
       Process.send_after(self(), {:cast_complete, player_guid, spell.id, token}, spell.cast_time)
 

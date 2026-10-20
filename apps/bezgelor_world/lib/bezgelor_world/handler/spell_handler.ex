@@ -183,6 +183,13 @@ defmodule BezgelorWorld.Handler.SpellHandler do
       {:error, :already_casting} ->
         send_cast_result(:failed, :already_casting, spell.id, state)
 
+      {:error, :unverified_spell4_combat} ->
+        Logger.warning(
+          "Spell4 #{spell.id} blocked: unverified damage formula, phases and targets"
+        )
+
+        send_cast_result(:failed, :none, spell.id, state)
+
       {:error, reason} ->
         send_cast_result(:failed, reason, spell.id, state)
     end
@@ -337,9 +344,24 @@ defmodule BezgelorWorld.Handler.SpellHandler do
     # See build_teleport_command/2 for documentation of failed approaches
     if spell.id == @gate_spell_id do
       teleport_packets = build_teleport_command(player_guid, destination)
-      send_spell_start_go_and_extra(spell_start, spell_go, teleport_packets, encoded_effect_packets, state, already_started)
+
+      send_spell_start_go_and_extra(
+        spell_start,
+        spell_go,
+        teleport_packets,
+        encoded_effect_packets,
+        state,
+        already_started
+      )
     else
-      send_spell_start_go_and_extra(spell_start, spell_go, [], encoded_effect_packets, state, already_started)
+      send_spell_start_go_and_extra(
+        spell_start,
+        spell_go,
+        [],
+        encoded_effect_packets,
+        state,
+        already_started
+      )
     end
   end
 
@@ -612,7 +634,8 @@ defmodule BezgelorWorld.Handler.SpellHandler do
         casting_id: casting_id,
         spell4_id: spell.id,
         caster_id: caster_id,
-        primary_target_id: if(spell.target_type == :self, do: caster_id, else: packet.target_guid),
+        primary_target_id:
+          if(spell.target_type == :self, do: caster_id, else: packet.target_guid),
         position: position,
         yaw: yaw,
         user_initiated: true
@@ -622,7 +645,15 @@ defmodule BezgelorWorld.Handler.SpellHandler do
   end
 
   @doc "Resolve an authorized, completed timed cast in the owner's world session."
-  def complete_cast(player_guid, spell_id, target_guid, target_position, effects, casting_id, state) do
+  def complete_cast(
+        player_guid,
+        spell_id,
+        target_guid,
+        target_position,
+        effects,
+        casting_id,
+        state
+      ) do
     cond do
       not state.session_data[:in_world] ->
         {:ok, state}
@@ -630,18 +661,36 @@ defmodule BezgelorWorld.Handler.SpellHandler do
       state.session_data[:entity_guid] != player_guid ->
         {:ok, state}
 
+      BezgelorCore.Spell4CombatSupport.execution_blocker(spell_id) != nil ->
+        send_cast_result(:failed, :none, spell_id, state)
+
       true ->
         case Spell.get(spell_id) do
           nil ->
             {:ok, state}
 
           spell ->
-            packet = %{target_guid: target_guid || 0,
-              target_position: target_position || state.session_data[:position]}
-            if validate_target(spell, packet, state) and validate_range(spell, packet, state) do
-              handle_instant_cast(spell, packet, player_guid, %{effects: effects, casting_id: casting_id}, state, true)
-            else
-              send_cast_result(:failed, :invalid_target, spell_id, state)
+            packet = %{
+              target_guid: target_guid || 0,
+              target_position: target_position || state.session_data[:position]
+            }
+
+            cond do
+              not validate_target(spell, packet, state) ->
+                send_cast_result(:failed, :invalid_target, spell_id, state)
+
+              not validate_range(spell, packet, state) ->
+                send_cast_result(:failed, :out_of_range, spell_id, state)
+
+              true ->
+                handle_instant_cast(
+                  spell,
+                  packet,
+                  player_guid,
+                  %{effects: effects, casting_id: casting_id},
+                  state,
+                  true
+                )
             end
         end
     end
@@ -661,15 +710,22 @@ defmodule BezgelorWorld.Handler.SpellHandler do
 
   # Validation helpers
 
-  defp validate_target(spell, packet, _state) do
+  defp validate_target(spell, packet, state) do
     case spell.target_type do
       :self ->
         # Self-target doesn't need a target
         true
 
       :enemy ->
-        # Requires enemy target
-        packet.target_guid != 0
+        # Resolve damage targets in the caster's instance, including at cast completion.
+        if Enum.any?(spell.effects, &(&1.type == :damage)) do
+          case damage_target(packet.target_guid, state) do
+            nil -> false
+            creature -> BezgelorWorld.World.CreatureState.targetable?(creature)
+          end
+        else
+          packet.target_guid != 0
+        end
 
       :ally ->
         # Requires ally target
@@ -686,6 +742,33 @@ defmodule BezgelorWorld.Handler.SpellHandler do
   end
 
   defp validate_range(spell, packet, state) do
+    if spell.target_type == :enemy and Enum.any?(spell.effects, &(&1.type == :damage)) do
+      case {state.session_data[:position], damage_target(packet.target_guid, state)} do
+        {{_, _, _} = position, %{entity: entity}} ->
+          BezgelorCore.AI.distance(position, entity.position) <= spell.range
+
+        _ ->
+          false
+      end
+    else
+      validate_non_damage_range(spell, packet, state)
+    end
+  end
+
+  defp damage_target(target_guid, state) do
+    world_id = state.session_data[:world_id]
+    instance_id = state.session_data[:instance_id]
+
+    with true <- is_creature_guid?(target_guid),
+         true <- is_integer(world_id) and is_integer(instance_id),
+         pid when is_pid(pid) <- GenServer.whereis(WorldInstance.via_tuple(world_id, instance_id)) do
+      WorldInstance.get_creature(pid, target_guid)
+    else
+      _ -> nil
+    end
+  end
+
+  defp validate_non_damage_range(spell, packet, state) do
     if spell.range == 0.0 do
       # Self-cast, no range check
       true
@@ -714,7 +797,14 @@ defmodule BezgelorWorld.Handler.SpellHandler do
     send_packet(:server_cast_result, packet, state)
   end
 
-  defp send_spell_start_go_and_extra(spell_start, spell_go, extra_packets, effect_packets, state, already_started) do
+  defp send_spell_start_go_and_extra(
+         spell_start,
+         spell_go,
+         extra_packets,
+         effect_packets,
+         state,
+         already_started
+       ) do
     # Encode ServerSpellStart
     start_writer = PacketWriter.new()
     {:ok, start_writer} = ServerSpellStart.write(spell_start, start_writer)

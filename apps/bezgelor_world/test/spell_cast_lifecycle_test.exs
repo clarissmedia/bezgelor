@@ -9,9 +9,11 @@ defmodule BezgelorWorld.SpellCastLifecycleTest do
     end
 
     player_guid = System.unique_integer([:positive])
+
     on_exit(fn ->
       if Process.whereis(SpellManager), do: SpellManager.clear_player(player_guid)
     end)
+
     {:ok, player_guid: player_guid}
   end
 

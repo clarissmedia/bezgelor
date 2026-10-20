@@ -1,0 +1,131 @@
+Validation 2026-10-20
+Container: bezgelor-gameplay-test, MIX_ENV=test, /workspace
+PostgreSQL: bezgelor-gameplay-test-db:5432, bezgelor_test
+Credentials: read from test database container, omitted here.
+
+COMMAND: mix compile --force --warnings-as-errors
+EXIT: 0
+==> bezgelor_core
+Compiling 29 files (.ex)
+Generated bezgelor_core app
+==> bezgelor_data
+Compiling 13 files (.ex)
+Generated bezgelor_data app
+==> bezgelor_dev
+Compiling 13 files (.ex)
+Generated bezgelor_dev app
+==> bezgelor_crypto
+Compiling 6 files (.ex)
+Generated bezgelor_crypto app
+==> bezgelor_db
+Compiling 109 files (.ex)
+Generated bezgelor_db app
+==> bezgelor_protocol
+Compiling 358 files (.ex)
+Generated bezgelor_protocol app
+==> bezgelor_auth
+Compiling 9 files (.ex)
+Generated bezgelor_auth app
+==> bezgelor_world
+Compiling 230 files (.ex)
+Generated bezgelor_world app
+==> bezgelor_api
+Compiling 6 files (.ex)
+Generated bezgelor_api app
+==> bezgelor_realm
+Compiling 2 files (.ex)
+Generated bezgelor_realm app
+==> bezgelor_portal
+Compiling 71 files (.ex)
+Generated bezgelor_portal app
+
+COMMAND: mix test [12 files listed in companion report] --include integration --warnings-as-errors --seed 20261020
+EXIT: 0
+==> bezgelor_core
+2026-10-20 13:04:24.000 [warning] Current realm 1 not found in database
+Running ExUnit with seed: 20261020, max_cases: 28
+Including tags: [:integration]
+
+........................................
+Finished in 0.07 seconds (0.07s async, 0.00s sync)
+40 tests, 0 failures
+==> bezgelor_protocol
+Running ExUnit with seed: 20261020, max_cases: 28
+Excluding tags: [:database]
+Including tags: [:integration]
+
+.......................
+Finished in 0.09 seconds (0.09s async, 0.00s sync)
+23 tests, 0 failures
+==> bezgelor_world
+Running ExUnit with seed: 20261020, max_cases: 28
+Excluding tags: [:pending_implementation]
+Including tags: [:integration]
+
+2026-10-20 13:04:25.000 [warning] No connection found for player 12345
+.2026-10-20 13:04:25.000 [warning] No connection found for player 12345
+..2026-10-20 13:04:25.000 [warning] [SpellHandler] No ability at bag_index 0 for character 12345
+.2026-10-20 13:04:25.000 [warning] Spell cast received before player entered world
+.2026-10-20 13:04:25.000 [warning] [SpellHandler] No ability at bag_index 0 for character 12345
+.........2026-10-20 13:04:25.000 [warning] No connection found for player 12345
+......2026-10-20 13:04:30.000 [warning] Cannot persist XP: character 1 not found
+......2026-10-20 13:04:32.000 [warning] Spell4 43468 blocked: unverified damage formula, phases and targets
+.........2026-10-20 13:04:34.000 [warning] No connection found for player 0
+.2026-10-20 13:04:34.000 [warning] Character 91 already has quest 5861
+..2026-10-20 13:04:34.000 [warning] [EntityCommand] Too many commands to relay
+.2026-10-20 13:04:34.000 [warning] [EntityCommand] Failed to parse: :eof
+.......2026-10-20 13:04:35.000 [warning] Character 101 already has quest 5861
+..
+Finished in 10.4 seconds (0.00s async, 10.4s sync)
+48 tests, 0 failures
+
+COMMAND: mix format --check-formatted [10 changed Elixir files]
+EXIT: 0
+
+COMMAND: mix precommit
+EXIT: 1
+Stopped at format --check-formatted; full test suite not reached.
+Unformatted preexisting files: 43
+/workspace/apps/bezgelor_portal/lib/bezgelor_portal_web/live/dashboard_live.ex
+/workspace/apps/bezgelor_world/test/integration/spell_damage_test.exs
+/workspace/apps/bezgelor_world/test/economy/alerts_test.exs
+/workspace/apps/bezgelor_protocol/test/packets/world/client_chat_test.exs
+/workspace/apps/bezgelor_world/test/economy/telemetry_test.exs
+/workspace/apps/bezgelor_world/test/creature_manager_test.exs
+/workspace/apps/bezgelor_protocol/lib/bezgelor_protocol/handler/movement_handler.ex
+/workspace/apps/bezgelor_world/lib/bezgelor_world/world/instance_supervisor.ex
+/workspace/apps/bezgelor_portal/lib/bezgelor_portal/release.ex
+/workspace/apps/bezgelor_world/test/integration/economy_integration_test.exs
+/workspace/apps/bezgelor_protocol/test/packets/world/server_item_move_test.exs
+/workspace/apps/bezgelor_portal/lib/bezgelor_portal_web/components/layouts.ex
+/workspace/apps/bezgelor_protocol/test/bezgelor_protocol/packets/realm/client_hello_auth_test.exs
+/workspace/apps/bezgelor_world/test/handler/spell_handler_buff_test.exs
+/workspace/apps/bezgelor_world/lib/bezgelor_world/economy/alerts.ex
+/workspace/apps/bezgelor_protocol/test/bezgelor_protocol/packets/client_hello_auth_test.exs
+/workspace/apps/bezgelor_world/test/handler/spell_handler_integration_test.exs
+/workspace/config/runtime.exs
+/workspace/apps/bezgelor_protocol/lib/bezgelor_protocol/ability_packets.ex
+/workspace/apps/bezgelor_portal/test/rollup_scheduler_test.exs
+/workspace/apps/bezgelor_world/lib/bezgelor_world/creature/zone_manager.ex
+/workspace/apps/bezgelor_portal/lib/mix/tasks/email.test.ex
+/workspace/apps/bezgelor_world/test/world/instance_test.exs
+/workspace/apps/bezgelor_protocol/test/bezgelor_protocol/packet_reader_test.exs
+/workspace/apps/bezgelor_protocol/lib/bezgelor_protocol/packets/world/server_spell_go.ex
+/workspace/apps/bezgelor_protocol/test/packets/world/server_chat_test.exs
+/workspace/apps/bezgelor_world/test/abilities_test.exs
+/workspace/apps/bezgelor_protocol/test/bezgelor_protocol/packets/world/server_character_list_test.exs
+/workspace/apps/bezgelor_portal/lib/bezgelor_portal_web/live/admin/economy_live.ex
+/workspace/apps/bezgelor_world/test/bezgelor_world/zone/instance_test.exs
+/workspace/apps/bezgelor_protocol/test/bezgelor_protocol/packets/server_realm_info_test.exs
+/workspace/apps/bezgelor_protocol/test/bezgelor_protocol/handler/auth_handler_test.exs
+/workspace/apps/bezgelor_world/lib/bezgelor_world/abilities.ex
+/workspace/apps/bezgelor_portal/lib/bezgelor_portal_web/live/admin/metrics_dashboard_live.ex
+/workspace/apps/bezgelor_world/lib/bezgelor_world/event_manager.ex
+/workspace/apps/bezgelor_portal/lib/bezgelor_portal_web/live/register_live.ex
+/workspace/apps/bezgelor_world/test/world/creature_state_test.exs
+/workspace/apps/bezgelor_protocol/test/bezgelor_protocol/packets/world/client_hello_realm_test.exs
+/workspace/apps/bezgelor_db/test/economy_test.exs
+/workspace/apps/bezgelor_world/lib/bezgelor_world/economy/telemetry.ex
+/workspace/apps/bezgelor_db/lib/bezgelor_db/economy.ex
+/workspace/apps/bezgelor_world/test/combat_edge_cases_test.exs
+/workspace/apps/bezgelor_protocol/test/bezgelor_protocol/packets/realm/server_packets_test.exs

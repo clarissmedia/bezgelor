@@ -10,8 +10,14 @@ defmodule BezgelorCore.Spell4EffectCatalogTest do
     assert Enum.any?(direct, &(&1.proxy_spell_id == 43498))
     assert Enum.any?(direct, &(&1.proxy_spell_id == 43499))
     assert {:ok, analysis} = Spell.effect_analysis(43468)
-    damage_ids = analysis.nodes |> Enum.filter(&(&1.type == 8))
-      |> Enum.map(& &1.spell_id) |> Enum.uniq() |> Enum.sort()
+
+    damage_ids =
+      analysis.nodes
+      |> Enum.filter(&(&1.type == 8))
+      |> Enum.map(& &1.spell_id)
+      |> Enum.uniq()
+      |> Enum.sort()
+
     assert damage_ids == [43498, 43499]
   end
 
