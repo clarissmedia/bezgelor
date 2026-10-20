@@ -301,6 +301,56 @@ defmodule BezgelorWorld.Spell4CombatRegressionTest do
     end
   end
 
+  test "Quick Draw exposes sourced phase order and repeated edges without a guessed schedule",
+       ctx do
+    assert {:ok, audit} = BezgelorWorld.Spell4Diagnostics.inspect_spell(43468)
+    plan = audit.phase_plan
+
+    assert Enum.map(
+             plan.phases,
+             &{&1["ID"], &1["orderIndex"], &1["phaseDelay"], &1["phaseFlags"]}
+           ) == [
+             {5882, 0, 0, 0},
+             {5883, 1, 366, 512},
+             {5884, 2, 200, 0},
+             {5885, 3, 200, 4},
+             {5886, 4, 234, 0}
+           ]
+
+    assert plan.timing_fields == %{
+             "castTime" => 1000,
+             "channelMaxTime" => 1000,
+             "channelInitialDelay" => 366,
+             "channelPulseTime" => 634
+           }
+
+    proxies = Enum.filter(plan.effects, &(&1["effectType"] == 26))
+    assert length(proxies) == 8
+    assert Enum.count(proxies, &(&1["dataBits00"] == 43498)) == 3
+    assert Enum.count(proxies, &(&1["dataBits00"] == 43499)) == 3
+    assert Enum.map(proxies, & &1["ID"]) |> Enum.uniq() |> length() == 8
+    assert {:error, :unverified_phase_triggers} = BezgelorCore.Spell4PhasePlan.schedule(plan)
+    assert audit.geometry_diagnostic == :nexusforever_zero_radius_points_only
+
+    assert {:ok, true} =
+             BezgelorCore.Spell4TelegraphGeometry.point_inside(
+               hd(audit.telegraphs[43498]),
+               {0, 0, 0},
+               0,
+               {0, 0, -25},
+               %{caster: 0, target: 0}
+             )
+
+    assert {:error, :unverified_target_policy} =
+             BezgelorCore.Spell4TelegraphGeometry.select_targets(
+               [ctx.target],
+               audit.constraints[43498]
+             )
+
+    assert Instance.get_creature(ctx.key, ctx.target).entity.health == 100
+    assert Characters.get_character(ctx.character.id).total_xp == ctx.character.total_xp
+  end
+
   test "sourced effect rows from all six classes reproduce base-only float32 vectors", ctx do
     context = %BezgelorCore.Spell4Context{
       caster: %{

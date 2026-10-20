@@ -1,7 +1,7 @@
 defmodule BezgelorWorld.Spell4Diagnostics do
   @moduledoc "Read-only inspection of sourced Spell4 records and optional base-damage operands."
   alias BezgelorData.Spell4Catalog, as: Catalog
-  alias BezgelorCore.{Spell4BaseDamage, Spell4Chain}
+  alias BezgelorCore.{Spell4BaseDamage, Spell4Chain, Spell4PhasePlan}
   require Logger
 
   def inspect_spell(id, context \\ nil) do
@@ -50,11 +50,18 @@ defmodule BezgelorWorld.Spell4Diagnostics do
          chain: chain,
          spell: Catalog.row("Spell4", id),
          phases: Catalog.phases(id),
+         phase_plan:
+           Spell4PhasePlan.build(
+             Catalog.row("Spell4", id),
+             Catalog.phases(id),
+             Catalog.effects(id)
+           ),
          thresholds: Catalog.thresholds(id),
          base_damage: base_damage,
          telegraphs: telegraphs,
          constraints: constraints,
          geometry_execution: :unsupported,
+         geometry_diagnostic: :nexusforever_zero_radius_points_only,
          execution_blocker: :unverified_spell4_combat,
          remaining: [
            :phase_execution,

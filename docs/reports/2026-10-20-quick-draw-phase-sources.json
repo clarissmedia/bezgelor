@@ -1,0 +1,123 @@
+{
+  "installed_read_only_reader": [
+    {
+      "path": "E:\\WILDSTAR\\SERVEUR\\REWORK\\Source\\NexusForever.GameTable\\GameTable.cs",
+      "sha256": "b7f3c9c26b9b700e01d2b5af256c8632358b5f9f08654552d3778ac04eb9e7d9"
+    },
+    {
+      "path": "E:\\WILDSTAR\\SERVEUR\\REWORK\\Source\\NexusForever.GameTable\\GameTableHeader.cs",
+      "sha256": "3cd972391bba086b37038c0e96bf11c218d5277882282f879883a9ae4012b9ac"
+    },
+    {
+      "path": "E:\\WILDSTAR\\SERVEUR\\REWORK\\Source\\NexusForever.GameTable\\GameTableField.cs",
+      "sha256": "59869bed02d0519738146813b433c19ce53cb4fc2bb3bc37e2e614b275b97c4c"
+    },
+    {
+      "path": "E:\\WILDSTAR\\SERVEUR\\REWORK\\Source\\NexusForever.GameTable\\GameTableFieldArrayAttribute.cs",
+      "sha256": "1d22f02afd2698056afcfff615f3e6bf9748b1533be3ddfbf01fbbcb1e0bebed"
+    },
+    {
+      "path": "E:\\WILDSTAR\\SERVEUR\\REWORK\\Source\\NexusForever.GameTable\\GameTableException.cs",
+      "sha256": "44bae8d32d2e1cf352dec14c586da3f9b78fcb72e90f1e63caa214bfb82aaf5d"
+    },
+    {
+      "path": "E:\\WILDSTAR\\SERVEUR\\REWORK\\Source\\NexusForever.GameTable\\DataType.cs",
+      "sha256": "5c209ca63dffdfe75ff60d9adb1aed38c9fe6b7dc0d74907667c31e2184f0156"
+    },
+    {
+      "path": "E:\\WILDSTAR\\SERVEUR\\REWORK\\Source\\NexusForever.GameTable\\StringTable.cs",
+      "sha256": "893b5e6ac7dbef417acc176bbb8fc312da4476c3568aa1e4a2d643c1a3893c89"
+    },
+    {
+      "path": "E:\\WILDSTAR\\SERVEUR\\REWORK\\Source\\NexusForever.GameTable\\Extensions.cs",
+      "sha256": "9e57f793e33339a2a7ad88f0b44af71048515ebe33fe1352b92869a63e236b03"
+    },
+    {
+      "path": "E:\\WILDSTAR\\SERVEUR\\REWORK\\Source\\NexusForever.Shared\\Extensions.cs",
+      "sha256": "7f2fe27455eb88fe6d1d64f49781780d5a699142769844c8c1559f8288053363"
+    }
+  ],
+  "reference_commit": "f9bb26efddbf304003fc8ebf484ac75bc6be84da",
+  "upstream": [
+    {
+      "path": "NexusForever.Game/Spell/Telegraph.cs",
+      "sha256": "bda96fae19b37bc44a0a1d1d5f8a763e4746e9ddcef69dff6c715cd0e05bab57",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game/Spell/Telegraph.cs"
+    },
+    {
+      "path": "NexusForever.Game/MathsExtensions.cs",
+      "sha256": "b333ecbed39adb756955f31f21cc6d0fe38567b2dfa6dcd82b7187a58ed97eaf",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game/MathsExtensions.cs"
+    },
+    {
+      "path": "NexusForever.Game.Static/Spell/DamageShape.cs",
+      "sha256": "880fb1e6d444f837112024109836d6d81ac6ab14e414ce245ef6f39a732d361e",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game.Static/Spell/DamageShape.cs"
+    },
+    {
+      "path": "NexusForever.GameTable/Model/TelegraphDamageEntry.cs",
+      "sha256": "d624c5cde81f47682b89913bc50728b37d90684e4e1abd3811e9ae27bb37913d",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.GameTable/Model/TelegraphDamageEntry.cs"
+    },
+    {
+      "path": "NexusForever.Game/Spell/Spell.cs",
+      "sha256": "39e4a2bd764f0e869259c713c8e31ccc5a2d8575692ffe77a2b80a3291ca885a",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game/Spell/Spell.cs"
+    },
+    {
+      "path": "NexusForever.Game/Spell/SpellBaseInfo.cs",
+      "sha256": "202dd65e8a2819f82d98ecb925277cd49871024ad7d7d2881cb48a8b7eb83d56",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game/Spell/SpellBaseInfo.cs"
+    },
+    {
+      "path": "NexusForever.Game/Spell/SpellInfo.cs",
+      "sha256": "a5fc1b36596cc35431afd930a383e3fb8d0238b2f7ed7849190bd4c2d0a6b80c",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game/Spell/SpellInfo.cs"
+    },
+    {
+      "path": "NexusForever.Game/Map/Search/SearchCheckTelegraph.cs",
+      "sha256": "fc91fca16a0b3a6ef176242aa6cb0a2d9ced0115c644daa52f85941fe757f08b",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game/Map/Search/SearchCheckTelegraph.cs"
+    },
+    {
+      "path": "NexusForever.Game/Entity/UnitEntity.cs",
+      "sha256": "d5f1f64d44f302e4a523e7130315fc9ceab216d56e54cb2f6f2731ea6b5bf43d",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game/Entity/UnitEntity.cs"
+    },
+    {
+      "path": "NexusForever.Game.Static/Spell/SpellEffectType.cs",
+      "sha256": "7d6528da49980e074d7035f6ab75ba0a64a8b94717681e6981cd249a2748948f",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game.Static/Spell/SpellEffectType.cs"
+    },
+    {
+      "path": "NexusForever.Game.Static/Spell/SpellEffectTargetFlags.cs",
+      "sha256": "3df2fd83575bbde601caeeebe9747f46564109d8ca5ffccb8318d3d2ecb110a3",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game.Static/Spell/SpellEffectTargetFlags.cs"
+    },
+    {
+      "path": "NexusForever.GameTable/Model/SpellPhaseEntry.cs",
+      "sha256": "d22e15df7611e4f1fed5c4ed7bb3567a5e1bd5474ae9e99b4abf371dce37964d",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.GameTable/Model/SpellPhaseEntry.cs"
+    },
+    {
+      "path": "NexusForever.GameTable/Model/Spell4Entry.cs",
+      "sha256": "be9074c05236ecdc43c5b66b00c72aa95fc85dc34acc260abe76244d63f0a025",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.GameTable/Model/Spell4Entry.cs"
+    },
+    {
+      "path": "NexusForever.GameTable/Model/Spell4EffectsEntry.cs",
+      "sha256": "923e0d029e01c56fff5ef8432aeb2728a9cbc2170fff144108949ed76ca2982c",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.GameTable/Model/Spell4EffectsEntry.cs"
+    }
+  ],
+  "online_research": [
+    {
+      "url": "https://github.com/NexusForever/NexusForever/issues/475",
+      "scope": "Spell rework todo, context only; no phase mapping derived"
+    },
+    {
+      "url": "https://github.com/NexusForever/NexusForever.SpellWorks",
+      "scope": "Viewer project homepage, context only; not evidence of an event interpreter"
+    }
+  ]
+}

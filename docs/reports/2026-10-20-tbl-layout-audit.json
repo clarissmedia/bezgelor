@@ -1,0 +1,1309 @@
+{
+  "tables_scanned": 384,
+  "string_before_scalar_tables": [
+    {
+      "table": "AccountCurrencyType",
+      "rows": 17,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "51b1aa86d32edd02ccff95ce81decb93396239516ccee738e0faa5de26624417"
+    },
+    {
+      "table": "AccountItem",
+      "rows": 2219,
+      "rows_with_padding": 2219,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "storeIdentifierUpsell",
+        "following_field": "creature2DisplayGroupIdGacha"
+      },
+      "historical_files": [],
+      "sha256": "13a07fbbe1737851ebc67a88697d3cd80fd2281795ae85bfb49c3f79855510aa"
+    },
+    {
+      "table": "ArchiveArticle",
+      "rows": 251,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "e6bcc4071836466bdc6b11551a2d965df200e347cd649f4322cdd3a5fbe19322"
+    },
+    {
+      "table": "ArchiveEntry",
+      "rows": 796,
+      "rows_with_padding": 796,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "inlineAssetPath",
+        "following_field": "archiveEntryTypeEnum"
+      },
+      "historical_files": [],
+      "sha256": "f88e8de1bf3a3629361eea9bfb88bee279f243a1a9ca86d93ae5340b6bbae823"
+    },
+    {
+      "table": "BinkMovie",
+      "rows": 5,
+      "rows_with_padding": 5,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "binkMovieAssetPath",
+        "following_field": "flags"
+      },
+      "historical_files": [],
+      "sha256": "1fc019f1bbd226cd77c2bac0bd4a1cf96d6cf958bfbde32271c8be7a756158fc"
+    },
+    {
+      "table": "CCStates",
+      "rows": 28,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "115e60dee9ce68a37a96192995346814c332535a6b062fc4657fa46a50056e94"
+    },
+    {
+      "table": "ChatChannel",
+      "rows": 39,
+      "rows_with_padding": 39,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "universalCommand01",
+        "following_field": "localizedTextIdName"
+      },
+      "historical_files": [],
+      "sha256": "b33c161cf47a59c5cbe8e0b0187ebc804c9ca1b617515f1a847c0c65cd414973"
+    },
+    {
+      "table": "Class",
+      "rows": 6,
+      "rows_with_padding": 6,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "enumName",
+        "following_field": "localizedTextId"
+      },
+      "historical_files": [
+        "Class.json"
+      ],
+      "sha256": "b05fe39dda10156b4e897fd902717dd795780356ec9d79a9d41e464e637155c5"
+    },
+    {
+      "table": "ClientEvent",
+      "rows": 228,
+      "rows_with_padding": 228,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "description",
+        "following_field": "worldId"
+      },
+      "historical_files": [],
+      "sha256": "fc8cd61c5858e1345ad55be58c878886cd14902f4eb75d8fb4e84f2a986e8e2b"
+    },
+    {
+      "table": "ColorShift",
+      "rows": 16,
+      "rows_with_padding": 16,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "texturePath",
+        "following_field": "localizedTextId"
+      },
+      "historical_files": [],
+      "sha256": "1c1d02536624df03657ba0d3c03e09393646fcd79211f5d0f6cf049b70f4b8ba"
+    },
+    {
+      "table": "ComponentRegion",
+      "rows": 32,
+      "rows_with_padding": 32,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "EnumName",
+        "following_field": "componentMap"
+      },
+      "historical_files": [],
+      "sha256": "2f6f12e333b006c1eccdb00ca05530b30847b8fc38aced98fb46be62e95137a4"
+    },
+    {
+      "table": "Creature2",
+      "rows": 53137,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "0046759e8b9c3f4a2238f4198595f13693290c6f0dbd47d8da8f9849da709eb7"
+    },
+    {
+      "table": "Creature2Action",
+      "rows": 7311,
+      "rows_with_padding": 7311,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "description",
+        "following_field": "creatureActionSetId"
+      },
+      "historical_files": [],
+      "sha256": "b273615b681ed9fbe448c3cc0047ae3007ed8c8aaa3e108ce79f371b9aef27a6"
+    },
+    {
+      "table": "Creature2ActionSet",
+      "rows": 3688,
+      "rows_with_padding": 3688,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "description",
+        "following_field": "prerequisiteId"
+      },
+      "historical_files": [],
+      "sha256": "5d32007da4455e542322fcea39f4ddea074fe6ccb46130a7009c9bde5e838d37"
+    },
+    {
+      "table": "Creature2ArcheType",
+      "rows": 31,
+      "rows_with_padding": 31,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "icon",
+        "following_field": "unitPropertyMultiplier000"
+      },
+      "historical_files": [],
+      "sha256": "4646a1ff0381c9b8ba821f0b6e9707f330a8233a7bee5afc5256b3d3860aeb7e"
+    },
+    {
+      "table": "Creature2DisplayInfo",
+      "rows": 13868,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "93d66949c078fa233466748a8a1da6181d56821c93dfd9f945e1964b3a9b1137"
+    },
+    {
+      "table": "Creature2ModelInfo",
+      "rows": 4328,
+      "rows_with_padding": 4328,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "assetTexture1",
+        "following_field": "modelTextureId0"
+      },
+      "historical_files": [],
+      "sha256": "0b613f6bd3b43bf0e0afd0a50be4e39ba01ed5e4160b2ffdd03817ef3bee5e6e"
+    },
+    {
+      "table": "CurrencyType",
+      "rows": 13,
+      "rows_with_padding": 13,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "description",
+        "following_field": "localizedTextId"
+      },
+      "historical_files": [],
+      "sha256": "2d2a28abc4d9054c9f12008d8ae59618feed5306ee3f335a225ea527bac7b692"
+    },
+    {
+      "table": "Datacube",
+      "rows": 765,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "445fc560835174853e52d2dea177a4fe0672572a48e61702c37f18a231e661cb"
+    },
+    {
+      "table": "DatacubeVolume",
+      "rows": 401,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "db348060b182dbb5452417125501ae276b796cc6b17f2c02164e3c96569b3a57"
+    },
+    {
+      "table": "FinishingMoveDeathVisual",
+      "rows": 54,
+      "rows_with_padding": 54,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "deathModelAsset",
+        "following_field": "modelSequenceIdDeath"
+      },
+      "historical_files": [],
+      "sha256": "2c9e88268f5fcd27007b94e1a7863c131f0ed12cf5946baefff6e574271bfee2"
+    },
+    {
+      "table": "FullScreenEffect",
+      "rows": 16,
+      "rows_with_padding": 16,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "modelPath",
+        "following_field": "priority"
+      },
+      "historical_files": [],
+      "sha256": "df6b735c9bf43d33354ec133399a3d4432685ce1f25dafe9fc571d2a8698e384"
+    },
+    {
+      "table": "GenericMapNode",
+      "rows": 54,
+      "rows_with_padding": 54,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "spritePath",
+        "following_field": "genericMapNodeTypeEnum"
+      },
+      "historical_files": [],
+      "sha256": "79ee3f77d499a7be049535d079ca53db6227c046d359e27ffda23407ca7269f0"
+    },
+    {
+      "table": "GenericUnlockEntry",
+      "rows": 251,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "34acbf3d19b10c808b80959b9ec65ed05064cd55089d480ba022df708e696e7c"
+    },
+    {
+      "table": "GuildPerk",
+      "rows": 25,
+      "rows_with_padding": 25,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "luaName",
+        "following_field": "purchaseInfluenceCost"
+      },
+      "historical_files": [],
+      "sha256": "ec2c960d7d3c1e00a283b47623d52d9b5a2a0f02843858eda5da25b98ab9e681"
+    },
+    {
+      "table": "GuildPermission",
+      "rows": 30,
+      "rows_with_padding": 30,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "luaVariable",
+        "following_field": "localizedTextIdCommand"
+      },
+      "historical_files": [],
+      "sha256": "8be0e6ce51e484bac0fc61e443431d99a3ce65fc11d4e5d741bed2727176b2cf"
+    },
+    {
+      "table": "HookAsset",
+      "rows": 2916,
+      "rows_with_padding": 2916,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "asset",
+        "following_field": "scale"
+      },
+      "historical_files": [],
+      "sha256": "f5f060fc945371748125233dc86668966f9c3ca9ab73beb5faea54d66f4e94f9"
+    },
+    {
+      "table": "HousingBuild",
+      "rows": 10,
+      "rows_with_padding": 10,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "assetPath",
+        "following_field": "constructionEffectsId"
+      },
+      "historical_files": [],
+      "sha256": "8f0e943f7574edba1cca78608cd28ea34b8f0f5f0ce2ec944fa643b5e5239b13"
+    },
+    {
+      "table": "HousingDecorInfo",
+      "rows": 3248,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "7d8840b928da85fbb3c75bcfff1bd76092e1e867c6b336fa0bcdae7e6f938c95"
+    },
+    {
+      "table": "HousingMannequinPose",
+      "rows": 3,
+      "rows_with_padding": 3,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "enumName",
+        "following_field": "localizedTextId"
+      },
+      "historical_files": [],
+      "sha256": "d942238236bb0e8f71cd82c59699c134a9a26fc056f571f7d9c4f6b1f5384ff9"
+    },
+    {
+      "table": "HousingPlugItem",
+      "rows": 514,
+      "rows_with_padding": 514,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "screenshotSprite04",
+        "following_field": "housingPlugTypeEnum"
+      },
+      "historical_files": [],
+      "sha256": "0ea65a2e6dd5a0a1b4b44cccbae85a5e0a7691a127987ff719df359914df9e68"
+    },
+    {
+      "table": "InputAction",
+      "rows": 210,
+      "rows_with_padding": 210,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "enumName",
+        "following_field": "localizedTextId"
+      },
+      "historical_files": [],
+      "sha256": "85de8551ec654514f0890dbdb78ac2b685512b556189a39a4911deb8c7acddf6"
+    },
+    {
+      "table": "Item2",
+      "rows": 71918,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "f51673fdbf5e97678cf67f62d0a1975fbb60be98bfe79a9c354f7fc5498b0ce2"
+    },
+    {
+      "table": "ItemDisplay",
+      "rows": 8737,
+      "rows_with_padding": 8737,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "description",
+        "following_field": "item2TypeId"
+      },
+      "historical_files": [
+        "ItemDisplay.json"
+      ],
+      "sha256": "85d49e373a32cd1aabca1d097afb3a6d1a2127a491d5adb4035e7dd337140856"
+    },
+    {
+      "table": "ItemQuality",
+      "rows": 7,
+      "rows_with_padding": 7,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "assetPathDieModel",
+        "following_field": "soundEventIdFortuneCardFanfare"
+      },
+      "historical_files": [],
+      "sha256": "0f90558d988e1d88a9e9b61b440cc32af9d8005d02e7d09abdde34ceb7383134"
+    },
+    {
+      "table": "ItemSlot",
+      "rows": 50,
+      "rows_with_padding": 50,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "EnumName",
+        "following_field": "equippedSlotFlags"
+      },
+      "historical_files": [],
+      "sha256": "17fe0ecc810be365b8218b79f8ed7d5ff27dcc37989754fc2d354ffdbcbe93bd"
+    },
+    {
+      "table": "Language",
+      "rows": 4,
+      "rows_with_padding": 4,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "clientLanguageTag",
+        "following_field": "soundAvailabilityIndexFemale"
+      },
+      "historical_files": [],
+      "sha256": "c61ca7b658213f3f4e49268a7ef71965330bbfbd0153fe8070bd1016b0ca2953"
+    },
+    {
+      "table": "LevelUpUnlock",
+      "rows": 106,
+      "rows_with_padding": 106,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "displayIcon",
+        "following_field": "prerequisiteId"
+      },
+      "historical_files": [],
+      "sha256": "b166ceaaa9952448a2aa5fc12c2bd98a68df9eb5b062282f6ef1480d8389b6dd"
+    },
+    {
+      "table": "LiveEvent",
+      "rows": 95,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "e3289ac83a5e966510a211a76d3902d08771615a6e0edc6aee559c5e24959325"
+    },
+    {
+      "table": "LocalizedEnum",
+      "rows": 10551,
+      "rows_with_padding": 10551,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "enumName",
+        "following_field": "localizedTextId"
+      },
+      "historical_files": [],
+      "sha256": "e352cae04c909624f29a4e3b3ccade34f5e73a90f3bbebd9aa58a7f2227a171c"
+    },
+    {
+      "table": "LootSpell",
+      "rows": 533,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "fe5f1e9c4df032b3ba68b78af7ec447ffe62f261e4dc14d226e1b664e6a8e2dc"
+    },
+    {
+      "table": "MapContinent",
+      "rows": 85,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "905535163dddcc7d23162d0a2d6781eeaf25daa42035b2603c07507bc337bfc9"
+    },
+    {
+      "table": "MapZone",
+      "rows": 490,
+      "rows_with_padding": 490,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "folder",
+        "following_field": "hexMinX"
+      },
+      "historical_files": [],
+      "sha256": "eccc63c13461c133d53331929d59cde4ebfee79b3e26d27016dc6afd5604b54d"
+    },
+    {
+      "table": "ModelPose",
+      "rows": 201,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "8879e36a7e02eafdbc20011a074c972958e406cd191e73a6528d5d02a550d4de"
+    },
+    {
+      "table": "ModelSequence",
+      "rows": 7287,
+      "rows_with_padding": 7287,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "description",
+        "following_field": "FallBackID"
+      },
+      "historical_files": [],
+      "sha256": "ac1b2b3017bae3df8970ef3dd2defef2b2e9b462b537b8234148185a3a4ba67c"
+    },
+    {
+      "table": "PathScientistCreatureInfo",
+      "rows": 402,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "43d8372299cb6f519dd674c2eb47671f100cf8ab4938ddfee23797f078f43ebb"
+    },
+    {
+      "table": "QuestCategory",
+      "rows": 53,
+      "rows_with_padding": 53,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "description",
+        "following_field": "localizedTextIdTitle"
+      },
+      "historical_files": [],
+      "sha256": "931ca482abc28cc6f13efb807c37fa1afcffc76cac92908a33cae9a36f1b8f8b"
+    },
+    {
+      "table": "Race",
+      "rows": 8,
+      "rows_with_padding": 8,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "enumName",
+        "following_field": "localizedTextId"
+      },
+      "historical_files": [],
+      "sha256": "95cecf6ef932a51b6ed12a196a5acca5556b118d80f92f8c32a0ca799e777b82"
+    },
+    {
+      "table": "RandomPlayerName",
+      "rows": 1846,
+      "rows_with_padding": 1846,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "nameFragment",
+        "following_field": "nameFragmentTypeEnum"
+      },
+      "historical_files": [],
+      "sha256": "38b77e10f19d5da4601fe5c41041006d7c96bcee12677ea845b5481d315e2c6a"
+    },
+    {
+      "table": "RealmDataCenter",
+      "rows": 10,
+      "rows_with_padding": 10,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "ncAppGroupCode",
+        "following_field": "ncProgramAuth"
+      },
+      "historical_files": [],
+      "sha256": "eff5d2eebb1a045c45602ab3a72ad796b3c3fa001f79bd93bb21158b96fe0ddf"
+    },
+    {
+      "table": "Redacted",
+      "rows": 4,
+      "rows_with_padding": 4,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "idString",
+        "following_field": "localizedTextIdName"
+      },
+      "historical_files": [],
+      "sha256": "02930cae96988c6765cd81214ac9ed1f22afa9158001b1f5a8d861b7566c7741"
+    },
+    {
+      "table": "RewardRotationItem",
+      "rows": 6,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "3ee5ceb833d73b326db0184631aa606a71ef776c0d32b49e1b83c03faf14f128"
+    },
+    {
+      "table": "RewardTrack",
+      "rows": 32,
+      "rows_with_padding": 32,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "assetPathButtonImage",
+        "following_field": "rewardPointCost00"
+      },
+      "historical_files": [],
+      "sha256": "aa2d04411e1db7b22eaa0d73ffd0b8d298bb3d62d9a24ac5fa0c4caa6b000d4f"
+    },
+    {
+      "table": "SoundEvent",
+      "rows": 43659,
+      "rows_with_padding": 43659,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "name",
+        "following_field": "hash"
+      },
+      "historical_files": [],
+      "sha256": "87329662ea39f21ce77152a0418ab53c4c93e8da27714ffe217e7003db5e9ca1"
+    },
+    {
+      "table": "SoundUIContext",
+      "rows": 271,
+      "rows_with_padding": 271,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "luaVariableName",
+        "following_field": "soundEventId"
+      },
+      "historical_files": [],
+      "sha256": "e739c435b66f793d155cd8a8079a701a8ff1c8771a07204b7b32b12afc3ab752"
+    },
+    {
+      "table": "Spell4",
+      "rows": 66383,
+      "rows_with_padding": 66383,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "description",
+        "following_field": "spell4BaseIdBaseSpell"
+      },
+      "historical_files": [
+        "Spell4_part1.json",
+        "Spell4_part2.json",
+        "Spell4_part3.json",
+        "Spell4_part4.json",
+        "Spell4_part5.json",
+        "Spell4_part6.json",
+        "Spell4_part7.json"
+      ],
+      "sha256": "303c03cf9ee268b1556cc65c2b56c62d21d083504a7a16eac2cac80d34f1914d"
+    },
+    {
+      "table": "Spell4Base",
+      "rows": 44838,
+      "rows_with_padding": 44838,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "icon",
+        "following_field": "castMethod"
+      },
+      "historical_files": [
+        "Spell4Base_part1.json",
+        "Spell4Base_part2.json"
+      ],
+      "sha256": "34e3faeeee7c4b9889b808a36ec69b40218ebe013cbf95e9e26fc6440005c93a"
+    },
+    {
+      "table": "Spell4CastResult",
+      "rows": 327,
+      "rows_with_padding": 327,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "enumName",
+        "following_field": "combatMessageTypeEnum"
+      },
+      "historical_files": [],
+      "sha256": "24b27559b392b80da90ce24e0c2ce1ef6fb555df26c89bfdf0d40d0883c4ac58"
+    },
+    {
+      "table": "Spell4ClientMissile",
+      "rows": 7617,
+      "rows_with_padding": 7617,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "beamPath",
+        "following_field": "beamSource"
+      },
+      "historical_files": [],
+      "sha256": "d8e71b1f411bda023bf82103e536d3d99c204252437dc00c8d8d53a00028523a"
+    },
+    {
+      "table": "Spell4Runner",
+      "rows": 6,
+      "rows_with_padding": 6,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "spriteName",
+        "following_field": "redTint"
+      },
+      "historical_files": [],
+      "sha256": "7b42e448924100c7df94d2d25e9d7828d73e8f7d295d353af712d95ddfd54bb9"
+    },
+    {
+      "table": "Spell4Thresholds",
+      "rows": 622,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "e078036cba584787e454913b3ecf04948b1e9d909080f5148b776697795746e9"
+    },
+    {
+      "table": "StoreLink",
+      "rows": 20,
+      "rows_with_padding": 20,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "enumName",
+        "following_field": "categoryData"
+      },
+      "historical_files": [],
+      "sha256": "e6a5f3b9d1146fe8c1001ce43ef23a9baae2b341898e2164270f9dfe9d2ed7e7"
+    },
+    {
+      "table": "TrackingSlot",
+      "rows": 175,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "8a1b52cd91aaeac3d3c778ad4a675d136a6f2eeb3a8cd1f3a9d84dcd95da5d76"
+    },
+    {
+      "table": "TradeskillBonus",
+      "rows": 248,
+      "rows_with_padding": 248,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "iconPath",
+        "following_field": "localizedTextIdName"
+      },
+      "historical_files": [],
+      "sha256": "82d2d40e14d4b9c1804343e7320fb7b2b83fee8e656d1aae61a8fc0ee985a5a2"
+    },
+    {
+      "table": "TutorialLayout",
+      "rows": 7,
+      "rows_with_padding": 7,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "form",
+        "following_field": "flags"
+      },
+      "historical_files": [],
+      "sha256": "1a3e5214fade5da57a3262706ec047f57809f8d37c63be5a3e92e93c1e841ecb"
+    },
+    {
+      "table": "TutorialPage",
+      "rows": 276,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "c3b7e288b56a385234f5d5097ba0a124f7d0f83e8d5ecc46f9ba47bef8ad8f01"
+    },
+    {
+      "table": "UnitProperty2",
+      "rows": 200,
+      "rows_with_padding": 200,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "enumName",
+        "following_field": "defaultValue"
+      },
+      "historical_files": [],
+      "sha256": "6edfb62a0235018b8fdde42c417fdc8a0ae2284eb938cccaeb7a849e5e481d2d"
+    },
+    {
+      "table": "UnitVehicle",
+      "rows": 466,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "dae17557213d4d323511364a79ab186ed45e388b230dc46ecd3371cec7dbdad5"
+    },
+    {
+      "table": "VirtualItem",
+      "rows": 1046,
+      "rows_with_padding": 1046,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "buttonIcon",
+        "following_field": "item2TypeId"
+      },
+      "historical_files": [],
+      "sha256": "633a11910339f931e134c75d7347fda72c860c9ec2683d318bf2e1f61ea4a1ea"
+    },
+    {
+      "table": "VisualEffect",
+      "rows": 43433,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "0e307f300f885ed0166f8b160417f08de66b6e09addf9b3e8f779f66412e8912"
+    },
+    {
+      "table": "WordFilter",
+      "rows": 4165,
+      "rows_with_padding": 4165,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "filter",
+        "following_field": "userTextFilterClassEnum"
+      },
+      "historical_files": [],
+      "sha256": "411ab8691ffdd110ce27d1654477e1e37db9784ef5b9783b83ba448b2022e45d"
+    },
+    {
+      "table": "World",
+      "rows": 2729,
+      "rows_with_padding": 2729,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "assetPath",
+        "following_field": "flags"
+      },
+      "historical_files": [],
+      "sha256": "55d6a26501e8da8adcbb7cf250206d97875f507e2fa5dc33a0f26c7bede27b7b"
+    },
+    {
+      "table": "WorldClutter",
+      "rows": 528,
+      "rows_with_padding": 528,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "Description",
+        "following_field": "density"
+      },
+      "historical_files": [],
+      "sha256": "d6fc78f49b4f261136b860f25816f3b40c57a12925b91f50f749d35689583af5"
+    },
+    {
+      "table": "WorldLayer",
+      "rows": 1117,
+      "rows_with_padding": 1117,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "Description",
+        "following_field": "HeightScale"
+      },
+      "historical_files": [],
+      "sha256": "1815e8aa42540dbad8eb704216dc5b30b628b1fafcd07bfcbc8402f01d50abae"
+    },
+    {
+      "table": "WorldSky",
+      "rows": 886,
+      "rows_with_padding": 886,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "assetPathInFlux",
+        "following_field": "color"
+      },
+      "historical_files": [],
+      "sha256": "f0387cbdb9303d458160a8674a92c71cdac8fd4acaf37930590405e646314b6b"
+    },
+    {
+      "table": "WorldWaterLayer",
+      "rows": 84,
+      "rows_with_padding": 84,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "RippleNormalTex",
+        "following_field": "Scale"
+      },
+      "historical_files": [],
+      "sha256": "94e78ed866d954734f3f8ec3fc6498872d89e9e9a2a1442aea13ec5fd3bad2e1"
+    },
+    {
+      "table": "WorldWaterType",
+      "rows": 17,
+      "rows_with_padding": 17,
+      "first_padding": {
+        "record_index": 0,
+        "after_field": "particleFile",
+        "following_field": "soundDirectionalAmbienceId"
+      },
+      "historical_files": [],
+      "sha256": "6fce6211b232ea8a05530f947427faab706fef9f2b306550b50d61c2c58d2834"
+    },
+    {
+      "table": "WorldWaterWake",
+      "rows": 10,
+      "rows_with_padding": 0,
+      "first_padding": null,
+      "historical_files": [],
+      "sha256": "dc1dbf9df61384e7473182cf0da2c92a1983b53759d4f48aa31ce77289841dc0"
+    }
+  ],
+  "scan_failures": [],
+  "corrected_python_vs_nexusforever": [
+    {
+      "table": "Class",
+      "rows_compared": 6,
+      "equal": true
+    },
+    {
+      "table": "GameFormula",
+      "rows_compared": 1217,
+      "equal": true
+    },
+    {
+      "table": "ItemDisplay",
+      "rows_compared": 8737,
+      "equal": true
+    },
+    {
+      "table": "Prerequisite",
+      "rows_compared": 32131,
+      "equal": true
+    },
+    {
+      "table": "Spell4",
+      "rows_compared": 66383,
+      "equal": true
+    },
+    {
+      "table": "Spell4AoeTargetConstraints",
+      "rows_compared": 690,
+      "equal": true
+    },
+    {
+      "table": "Spell4Base",
+      "rows_compared": 44838,
+      "equal": true
+    },
+    {
+      "table": "Spell4CastResult",
+      "rows_compared": 327,
+      "equal": true
+    },
+    {
+      "table": "Spell4CCConditions",
+      "rows_compared": 12,
+      "equal": true
+    },
+    {
+      "table": "Spell4Conditions",
+      "rows_compared": 48,
+      "equal": true
+    },
+    {
+      "table": "Spell4EffectGroupList",
+      "rows_compared": 21,
+      "equal": true
+    },
+    {
+      "table": "Spell4EffectModification",
+      "rows_compared": 417,
+      "equal": true
+    },
+    {
+      "table": "Spell4Effects",
+      "rows_compared": 131010,
+      "equal": true
+    },
+    {
+      "table": "Spell4Runner",
+      "rows_compared": 6,
+      "equal": true
+    },
+    {
+      "table": "Spell4TargetMechanics",
+      "rows_compared": 61,
+      "equal": true
+    },
+    {
+      "table": "Spell4Telegraph",
+      "rows_compared": 24343,
+      "equal": true
+    },
+    {
+      "table": "Spell4Thresholds",
+      "rows_compared": 622,
+      "equal": true
+    },
+    {
+      "table": "Spell4ValidTargets",
+      "rows_compared": 18,
+      "equal": true
+    },
+    {
+      "table": "SpellCoolDown",
+      "rows_compared": 202,
+      "equal": true
+    },
+    {
+      "table": "SpellEffectType",
+      "rows_compared": 150,
+      "equal": true
+    },
+    {
+      "table": "SpellPhase",
+      "rows_compared": 23099,
+      "equal": true
+    },
+    {
+      "table": "TelegraphDamage",
+      "rows_compared": 12085,
+      "equal": true
+    }
+  ],
+  "historical_json_comparisons": [
+    {
+      "table": "Class",
+      "rows_compared": 6,
+      "rows_with_structural_differences": 6,
+      "rows_with_only_rounding_differences": 0,
+      "first_differences": [
+        {
+          "id": 1,
+          "field": "localizedTextId",
+          "historical": 0,
+          "original": 72
+        },
+        {
+          "id": 1,
+          "field": "localizedTextIdNameFemale",
+          "historical": 72,
+          "original": 562743
+        },
+        {
+          "id": 1,
+          "field": "mechanic",
+          "historical": 562743,
+          "original": 5
+        },
+        {
+          "id": 1,
+          "field": "spell4IdInnateAbilityActive00",
+          "historical": 5,
+          "original": 46867
+        },
+        {
+          "id": 1,
+          "field": "spell4IdInnateAbilityActive01",
+          "historical": 46867,
+          "original": 47022
+        },
+        {
+          "id": 1,
+          "field": "spell4IdInnateAbilityActive02",
+          "historical": 47022,
+          "original": 0
+        },
+        {
+          "id": 1,
+          "field": "spell4IdInnateAbilityPassive00",
+          "historical": 0,
+          "original": 44926
+        },
+        {
+          "id": 1,
+          "field": "spell4IdInnateAbilityPassive01",
+          "historical": 44926,
+          "original": 44932
+        },
+        {
+          "id": 1,
+          "field": "spell4IdInnateAbilityPassive02",
+          "historical": 44932,
+          "original": 0
+        },
+        {
+          "id": 1,
+          "field": "prerequisiteIdInnateAbility01",
+          "historical": 0,
+          "original": 39778
+        },
+        {
+          "id": 1,
+          "field": "prerequisiteIdInnateAbility02",
+          "historical": 39778,
+          "original": 0
+        },
+        {
+          "id": 1,
+          "field": "startingItemProficiencies",
+          "historical": 0,
+          "original": 18
+        }
+      ]
+    },
+    {
+      "table": "ItemDisplay",
+      "rows_compared": 8737,
+      "rows_with_structural_differences": 8737,
+      "rows_with_only_rounding_differences": 0,
+      "first_differences": [
+        {
+          "id": 1,
+          "field": "item2TypeId",
+          "historical": 0,
+          "original": 51
+        },
+        {
+          "id": 1,
+          "field": "objectModel",
+          "historical": "",
+          "original": "Art\\Item\\Weapon\\Sword_1Hand\\Warrior_60_Cross_000\\WPN_Sword1H_Warrior60Cross_000.M3"
+        },
+        {
+          "id": 1,
+          "field": "objectModelL",
+          "historical": "Art\\Item\\Weapon\\Sword_1Hand\\Warrior_60_Cross_000\\WPN_Sword1H_Warrior60Cross_000.M3",
+          "original": ""
+        },
+        {
+          "id": 1,
+          "field": "modelTextureIdObject00",
+          "historical": 2376692,
+          "original": 0
+        },
+        {
+          "id": 1,
+          "field": "modelTextureIdSkinned00",
+          "historical": 2376692,
+          "original": 0
+        },
+        {
+          "id": 1,
+          "field": "modelAttachmentIdAttached",
+          "historical": 2376692,
+          "original": 0
+        },
+        {
+          "id": 1,
+          "field": "modelTextureIdAttached01",
+          "historical": 2376692,
+          "original": 0
+        },
+        {
+          "id": 1,
+          "field": "modelMeshId00",
+          "historical": 0,
+          "original": 166
+        },
+        {
+          "id": 1,
+          "field": "modelMeshId01",
+          "historical": 2376692,
+          "original": 170
+        },
+        {
+          "id": 1,
+          "field": "modelMeshId03",
+          "historical": 166,
+          "original": 0
+        },
+        {
+          "id": 1,
+          "field": "soundImpactDescriptionId",
+          "historical": 170,
+          "original": 1
+        },
+        {
+          "id": 1,
+          "field": "itemColorSetId",
+          "historical": 1,
+          "original": 0
+        }
+      ]
+    },
+    {
+      "table": "Spell4",
+      "rows_compared": 66383,
+      "rows_with_structural_differences": 66383,
+      "rows_with_only_rounding_differences": 0,
+      "first_differences": [
+        {
+          "id": 1,
+          "field": "spell4BaseIdBaseSpell",
+          "historical": 0,
+          "original": 1
+        },
+        {
+          "id": 1,
+          "field": "ravelInstanceId",
+          "historical": 1,
+          "original": 0
+        },
+        {
+          "id": 1,
+          "field": "spellCoolDown",
+          "historical": 0,
+          "original": 2000
+        },
+        {
+          "id": 1,
+          "field": "targetVerticalRange",
+          "historical": 0.0,
+          "original": -1.0
+        },
+        {
+          "id": 1,
+          "field": "casterInnateRequirement0",
+          "historical": 3212836864,
+          "original": 0
+        },
+        {
+          "id": 1,
+          "field": "stackPriority",
+          "historical": 0,
+          "original": 100
+        },
+        {
+          "id": 1,
+          "field": "spell4VisualGroupId",
+          "historical": 100,
+          "original": 0
+        },
+        {
+          "id": 1,
+          "field": "spell4ConditionsIdCaster",
+          "historical": 0,
+          "original": 1
+        },
+        {
+          "id": 1,
+          "field": "spell4ConditionsIdTarget",
+          "historical": 1,
+          "original": 15
+        },
+        {
+          "id": 1,
+          "field": "spell4CCConditionsIdCaster",
+          "historical": 15,
+          "original": 1
+        },
+        {
+          "id": 1,
+          "field": "spell4CCConditionsIdTarget",
+          "historical": 1,
+          "original": 0
+        },
+        {
+          "id": 1,
+          "field": "spellCoolDownIdGlobal",
+          "historical": 0,
+          "original": 100
+        }
+      ]
+    },
+    {
+      "table": "Spell4Base",
+      "rows_compared": 44838,
+      "rows_with_structural_differences": 42316,
+      "rows_with_only_rounding_differences": 0,
+      "first_differences": [
+        {
+          "id": 3,
+          "field": "spellClass",
+          "historical": 0,
+          "original": 38
+        },
+        {
+          "id": 3,
+          "field": "weaponSlot",
+          "historical": 38,
+          "original": 0
+        },
+        {
+          "id": 3,
+          "field": "castBarType",
+          "historical": 0,
+          "original": 1
+        },
+        {
+          "id": 4,
+          "field": "spellClass",
+          "historical": 0,
+          "original": 36
+        },
+        {
+          "id": 4,
+          "field": "weaponSlot",
+          "historical": 36,
+          "original": 0
+        },
+        {
+          "id": 15,
+          "field": "school",
+          "historical": 0,
+          "original": 1
+        },
+        {
+          "id": 15,
+          "field": "spellClass",
+          "historical": 1,
+          "original": 0
+        },
+        {
+          "id": 16,
+          "field": "school",
+          "historical": 0,
+          "original": 2
+        },
+        {
+          "id": 16,
+          "field": "spellClass",
+          "historical": 2,
+          "original": 0
+        },
+        {
+          "id": 17,
+          "field": "castBarType",
+          "historical": 0,
+          "original": 1
+        },
+        {
+          "id": 18,
+          "field": "spellClass",
+          "historical": 0,
+          "original": 37
+        },
+        {
+          "id": 18,
+          "field": "weaponSlot",
+          "historical": 37,
+          "original": 0
+        }
+      ]
+    }
+  ],
+  "json_regenerated": [],
+  "notes": [
+    "Padding counts are binary observations, not proof of which historical extractor produced each JSON.",
+    "Six-decimal rounding is a separate historical precision loss; corrected reader preserves float32.",
+    "No production data or original tables are written."
+  ]
+}

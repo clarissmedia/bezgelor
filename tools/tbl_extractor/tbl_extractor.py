@@ -36,7 +36,7 @@ class DataType(IntEnum):
 
 @dataclass
 class GameTableHeader:
-    """Header structure for .tbl files (104 bytes)."""
+    """Header structure for .tbl files (96 bytes)."""
     signature: int       # 4 bytes - 0x4C424454 ("TBLD" little-endian, "LBDT" in memory)
     version: int         # 4 bytes
     name_length: int     # 8 bytes
@@ -51,7 +51,7 @@ class GameTableHeader:
     lookup_offset: int   # 8 bytes
     unknown2: int        # 8 bytes
 
-    STRUCT_FORMAT = '<II QQQQQQQQQQ Q'  # 104 bytes total
+    STRUCT_FORMAT = '<II QQQQQQQQQQ Q'  # 96 bytes total
     STRUCT_SIZE = struct.calcsize(STRUCT_FORMAT)
 
     @classmethod
@@ -192,8 +192,15 @@ class TblExtractor:
         record = {}
         field_offset = offset
 
-        for field in self.fields:
+        for index, field in enumerate(self.fields):
             value, size = self._read_field_value(field_offset, field.data_type)
+            # NexusForever GameTable<T>.ReadEntries: some strings have four
+            # padding bytes before the next scalar. Offsets alone occupy eight.
+            if (field.data_type == DataType.STRING
+                    and index + 1 < len(self.fields)
+                    and self.fields[index + 1].data_type != DataType.STRING
+                    and struct.unpack_from('<I', self._data, field_offset)[0] == 0):
+                size += 4
             record[field.name] = value
             field_offset += size
 
@@ -203,8 +210,7 @@ class TblExtractor:
         """Read a field value and return (value, bytes_consumed)."""
         # Check if it's NOT a valid DataType enum (raw int from unknown type)
         if not isinstance(data_type, DataType):
-            # Unknown data type - skip 4 bytes as default
-            return None, 4
+            raise ValueError(f"Unsupported field type: {data_type}")
 
         if data_type == DataType.UINT:
             value = struct.unpack_from('<I', self._data, offset)[0]
@@ -212,8 +218,8 @@ class TblExtractor:
 
         elif data_type == DataType.FLOAT:
             value = struct.unpack_from('<f', self._data, offset)[0]
-            # Round to reasonable precision
-            return round(value, 6), 4
+            # Preserve the original IEEE-754 value, including damage coefficients.
+            return value, 4
 
         elif data_type == DataType.BOOL:
             value = struct.unpack_from('<I', self._data, offset)[0]

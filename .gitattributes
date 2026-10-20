@@ -4,3 +4,7 @@
 
 # Keep the reproducible Spell4 extraction byte-identical on Windows and Linux.
 apps/bezgelor_data/priv/data/spell4_combat_reference.json text eol=lf
+docs/reports/2026-10-20-quick-draw-phase-evidence.json text eol=lf
+docs/reports/2026-10-20-quick-draw-geometry-vectors.json text eol=lf
+docs/reports/2026-10-20-tbl-layout-audit.json text eol=lf
+docs/reports/2026-10-20-quick-draw-phase-sources.json text eol=lf

@@ -1,0 +1,177 @@
+Quick Draw phase/targeting validation - 2026-10-20
+Initial state: repair/spell4-effects-audit, HEAD 7a16593, clean tree.
+Container: bezgelor-gameplay-test, cwd /workspace.
+Common environment: MIX_ENV=test MIX_BUILD_PATH=/tmp/bezgelor-spell4-build
+Database: POSTGRES_HOST=bezgelor-gameplay-test-db POSTGRES_PORT=5432
+POSTGRES_USER=bezgelor POSTGRES_DB=bezgelor_test
+POSTGRES_PASSWORD passed through docker exec from test PostgreSQL Config.Env; never printed.
+
+Commands inside the test container (via docker exec):
+1. mix compile --force --warnings-as-errors (exit 0)
+2. mix test <19 files listed below> --include integration --warnings-as-errors --seed 20261020 (exit 0)
+3. mix precommit (exit 1: pre-existing formatting; its test stage was not reached)
+4. mix format --check-formatted <8 changed Elixir files> (exit 0)
+5. mix run --no-start tools/audit_spell4_phases.exs logs/spell4-engine/tbl logs/spell4-engine docs/reports/2026-10-20-quick-draw-phase-evidence.json (exit 0)
+6. mix run --no-start --no-compile tools/audit_spell4_phases.exs logs/spell4-engine/tbl logs/spell4-engine logs/spell4-engine/reproduced-phases.json (exit 0; identical SHA256)
+
+Test files:
+apps/bezgelor_core/test/spell_test.exs
+apps/bezgelor_core/test/spell_effect_test.exs
+apps/bezgelor_core/test/spell4_effect_catalog_test.exs
+apps/bezgelor_core/test/spell4_base_damage_test.exs
+apps/bezgelor_core/test/spell4_chain_test.exs
+apps/bezgelor_data/test/tbl_test.exs
+apps/bezgelor_data/test/spell4_catalog_test.exs
+apps/bezgelor_protocol/test/packets/combat_packets_test.exs
+apps/bezgelor_world/test/spell4_combat_regression_test.exs
+apps/bezgelor_world/test/spell_cast_lifecycle_test.exs
+apps/bezgelor_world/test/spell_buff_integration_test.exs
+apps/bezgelor_world/test/handler/spell_handler_stats_test.exs
+apps/bezgelor_world/test/handler/spell_handler_integration_test.exs
+apps/bezgelor_world/test/handler/spell_handler_buff_test.exs
+apps/bezgelor_world/test/integration/spell_damage_test.exs
+apps/bezgelor_world/test/gameplay_repair_test.exs
+apps/bezgelor_world/test/abilities_test.exs
+apps/bezgelor_core/test/spell4_phase_plan_test.exs
+apps/bezgelor_core/test/spell4_telegraph_geometry_test.exs
+
+Full strict compilation output:
+==> bezgelor_core
+Compiling 36 files (.ex)
+Generated bezgelor_core app
+==> bezgelor_data
+Compiling 15 files (.ex)
+Generated bezgelor_data app
+==> bezgelor_dev
+Compiling 13 files (.ex)
+Generated bezgelor_dev app
+==> bezgelor_crypto
+Compiling 6 files (.ex)
+Generated bezgelor_crypto app
+==> bezgelor_db
+Compiling 109 files (.ex)
+Generated bezgelor_db app
+==> bezgelor_protocol
+Compiling 358 files (.ex)
+Generated bezgelor_protocol app
+==> bezgelor_auth
+Compiling 9 files (.ex)
+Generated bezgelor_auth app
+==> bezgelor_world
+Compiling 231 files (.ex)
+Generated bezgelor_world app
+==> bezgelor_api
+Compiling 6 files (.ex)
+Generated bezgelor_api app
+==> bezgelor_realm
+Compiling 2 files (.ex)
+Generated bezgelor_realm app
+==> bezgelor_portal
+Compiling 71 files (.ex)
+Generated bezgelor_portal app
+
+Full targeted test output:
+==> bezgelor_core
+2026-10-20 14:06:22.000 [warning] Current realm 1 not found in database
+Running ExUnit with seed: 20261020, max_cases: 28
+Including tags: [:integration]
+
+...................................................................
+Finished in 0.2 seconds (0.2s async, 0.00s sync)
+67 tests, 0 failures
+==> bezgelor_data
+Running ExUnit with seed: 20261020, max_cases: 28
+Including tags: [:integration]
+
+.......
+Finished in 0.07 seconds (0.07s async, 0.00s sync)
+7 tests, 0 failures
+==> bezgelor_protocol
+Running ExUnit with seed: 20261020, max_cases: 28
+Excluding tags: [:database]
+Including tags: [:integration]
+
+.......................
+Finished in 0.09 seconds (0.09s async, 0.00s sync)
+23 tests, 0 failures
+==> bezgelor_world
+Running ExUnit with seed: 20261020, max_cases: 28
+Excluding tags: [:pending_implementation]
+Including tags: [:integration]
+
+...................2026-10-20 14:06:24.000 [warning] No connection found for player 12345
+.2026-10-20 14:06:24.000 [warning] No connection found for player 12345
+.....2026-10-20 14:06:29.000 [warning] Cannot persist XP: character 1 not found
+..2026-10-20 14:06:29.000 [warning] [SpellHandler] No ability at bag_index 0 for character 12345
+.2026-10-20 14:06:29.000 [warning] Spell cast received before player entered world
+.2026-10-20 14:06:29.000 [warning] [SpellHandler] No ability at bag_index 0 for character 12345
+.......2026-10-20 14:06:29.000 [warning] No connection found for player 12345
+.....2026-10-20 14:06:29.000 [warning] No connection found for player 0
+.2026-10-20 14:06:29.000 [warning] Character 241 already has quest 5861
+..2026-10-20 14:06:30.000 [warning] [EntityCommand] Too many commands to relay
+.2026-10-20 14:06:30.000 [warning] [EntityCommand] Failed to parse: :eof
+.......2026-10-20 14:06:31.000 [warning] Character 251 already has quest 5861
+........2026-10-20 14:06:32.000 [warning] Spell4 43468 blocked: incomplete final combat resolution (phases, targets, stats)
+....2026-10-20 14:06:33.000 [warning] Spell4 34355 blocked: incomplete final combat resolution (phases, targets, stats)
+........
+Finished in 12.0 seconds (0.8s async, 11.2s sync)
+72 tests, 0 failures
+
+Precommit: mix format failed due to --check-formatted.
+Pre-existing files reported (43):
+/workspace/apps/bezgelor_portal/lib/bezgelor_portal_web/live/dashboard_live.ex
+/workspace/apps/bezgelor_world/test/integration/spell_damage_test.exs
+/workspace/apps/bezgelor_world/test/economy/alerts_test.exs
+/workspace/apps/bezgelor_protocol/test/packets/world/client_chat_test.exs
+/workspace/apps/bezgelor_world/test/economy/telemetry_test.exs
+/workspace/apps/bezgelor_world/test/creature_manager_test.exs
+/workspace/apps/bezgelor_protocol/lib/bezgelor_protocol/handler/movement_handler.ex
+/workspace/apps/bezgelor_world/lib/bezgelor_world/world/instance_supervisor.ex
+/workspace/apps/bezgelor_portal/lib/bezgelor_portal/release.ex
+/workspace/apps/bezgelor_world/test/integration/economy_integration_test.exs
+/workspace/apps/bezgelor_protocol/test/packets/world/server_item_move_test.exs
+/workspace/apps/bezgelor_portal/lib/bezgelor_portal_web/components/layouts.ex
+/workspace/apps/bezgelor_protocol/test/bezgelor_protocol/packets/realm/client_hello_auth_test.exs
+/workspace/apps/bezgelor_world/test/handler/spell_handler_buff_test.exs
+/workspace/apps/bezgelor_world/lib/bezgelor_world/economy/alerts.ex
+/workspace/apps/bezgelor_protocol/test/bezgelor_protocol/packets/client_hello_auth_test.exs
+/workspace/apps/bezgelor_world/test/handler/spell_handler_integration_test.exs
+/workspace/config/runtime.exs
+/workspace/apps/bezgelor_protocol/lib/bezgelor_protocol/ability_packets.ex
+/workspace/apps/bezgelor_portal/test/rollup_scheduler_test.exs
+/workspace/apps/bezgelor_world/lib/bezgelor_world/creature/zone_manager.ex
+/workspace/apps/bezgelor_portal/lib/mix/tasks/email.test.ex
+/workspace/apps/bezgelor_world/test/world/instance_test.exs
+/workspace/apps/bezgelor_protocol/test/bezgelor_protocol/packet_reader_test.exs
+/workspace/apps/bezgelor_protocol/lib/bezgelor_protocol/packets/world/server_spell_go.ex
+/workspace/apps/bezgelor_protocol/test/packets/world/server_chat_test.exs
+/workspace/apps/bezgelor_world/test/abilities_test.exs
+/workspace/apps/bezgelor_protocol/test/bezgelor_protocol/packets/world/server_character_list_test.exs
+/workspace/apps/bezgelor_portal/lib/bezgelor_portal_web/live/admin/economy_live.ex
+/workspace/apps/bezgelor_world/test/bezgelor_world/zone/instance_test.exs
+/workspace/apps/bezgelor_protocol/test/bezgelor_protocol/packets/server_realm_info_test.exs
+/workspace/apps/bezgelor_protocol/test/bezgelor_protocol/handler/auth_handler_test.exs
+/workspace/apps/bezgelor_world/lib/bezgelor_world/abilities.ex
+/workspace/apps/bezgelor_portal/lib/bezgelor_portal_web/live/admin/metrics_dashboard_live.ex
+/workspace/apps/bezgelor_world/lib/bezgelor_world/event_manager.ex
+/workspace/apps/bezgelor_portal/lib/bezgelor_portal_web/live/register_live.ex
+/workspace/apps/bezgelor_world/test/world/creature_state_test.exs
+/workspace/apps/bezgelor_protocol/test/bezgelor_protocol/packets/world/client_hello_realm_test.exs
+/workspace/apps/bezgelor_db/test/economy_test.exs
+/workspace/apps/bezgelor_world/lib/bezgelor_world/economy/telemetry.ex
+/workspace/apps/bezgelor_db/lib/bezgelor_db/economy.ex
+/workspace/apps/bezgelor_world/test/combat_edge_cases_test.exs
+/workspace/apps/bezgelor_protocol/test/bezgelor_protocol/packets/realm/server_packets_test.exs
+
+Host-side reference extraction and data comparison (not server tests):
+dotnet build tools/spell4_reference_reader/ReferenceReader.csproj -p:NexusForeverSource=E:/WILDSTAR/SERVEUR/REWORK/Source
+dotnet tools/spell4_reference_reader/bin/Debug/net8.0/ReferenceReader.dll ORIGINAL_TBL WORKSPACE_OUTPUT.json (22 tables)
+dotnet build tools/spell4_reference_reader/GeometryReader.csproj -p:NexusForeverSource=E:/WILDSTAR/BEZGELOR/source/logs/spell4-engine/upstream/Source
+dotnet tools/spell4_reference_reader/bin/Debug/net8.0/GeometryReader.dll INPUT.json WORKSPACE_OUTPUT.json SOURCE_DIRECTORY
+python tools/audit_tbl_layout.py E:/WILDSTAR/SERVEUR/WORLD/tbl apps/bezgelor_data/priv/data logs/spell4-engine docs/reports/2026-10-20-tbl-layout-audit.json
+See tools/spell4_reference_reader/README.md for complete reproduction.
+
+169 tests: 67 core + 7 data + 23 protocol + 72 world, zero failures.
+Elixir/NF: 337680 rows / 20 tables. Corrected Python/NF: 346423 / 22 tables.
+Binary layout audit: 384 tables, 78 string/scalar schemas, 56 with observed padding, zero scan failures.
+No in-game validation, offensive activation or production operation.
