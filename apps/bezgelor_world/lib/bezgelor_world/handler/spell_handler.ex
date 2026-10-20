@@ -185,7 +185,7 @@ defmodule BezgelorWorld.Handler.SpellHandler do
 
       {:error, :unverified_spell4_combat} ->
         Logger.warning(
-          "Spell4 #{spell.id} blocked: unverified damage formula, phases and targets"
+          "Spell4 #{spell.id} blocked: incomplete final combat resolution (phases, targets, stats)"
         )
 
         send_cast_result(:failed, :none, spell.id, state)

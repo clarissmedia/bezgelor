@@ -240,4 +240,96 @@ defmodule BezgelorWorld.Spell4CombatRegressionTest do
   end
 
   defp cast(state), do: SpellHandler.handle_cast_request(%ClientCastSpell{bag_index: 0}, state)
+
+  test "all audited roots remain blocked before mutation, including Gate's speculative movement",
+       ctx do
+    for id <- BezgelorData.Spell4Catalog.spell_ids() do
+      assert {:error, :unverified_spell4_combat} =
+               SpellManager.cast_spell(ctx.guid, id, ctx.target, nil, %{}, self())
+
+      assert SpellManager.get_cooldown(ctx.guid, id) == 0
+      refute SpellManager.casting?(ctx.guid)
+    end
+
+    state =
+      put_in(ctx.state, [:session_data, :action_set_shortcuts], [
+        %{slot: 0, spec_index: 0, spell_id: 34355}
+      ])
+
+    assert {:reply_world_encrypted, :server_cast_result, <<1, 0, 34355::little-32>>, ^state} =
+             cast(state)
+
+    assert state.session_data.position == {0.0, 0.0, 0.0}
+    assert Instance.get_creature(ctx.key, ctx.target).entity.health == 100
+    assert Characters.get_character(ctx.character.id).total_xp == ctx.character.total_xp
+  end
+
+  test "real Quick Draw base arithmetic is inspectable but cannot authorize an impact", ctx do
+    context = %BezgelorCore.Spell4Context{
+      caster: %{type: :player, level: 50, properties: %{35 => 400, 141 => 1.0}},
+      target: %{}
+    }
+
+    assert {:ok, audit} = BezgelorWorld.Spell4Diagnostics.inspect_spell(43468, context)
+    assert audit.spell["castTime"] == 1000
+    assert length(audit.phases) == 5
+    assert length(audit.chain.edges) == 8
+    assert map_size(audit.chain.spells) == 4
+    assert map_size(audit.base_damage) == 2
+    assert audit.constraints[43498]["targetCount"] == 3
+    assert audit.constraints[43498]["maxRange"] == 25.0
+    assert [%{"damageShapeEnum" => 8, "zPositionOffset" => -2.0}] = audit.telegraphs[43498]
+    assert audit.geometry_execution == :unsupported
+
+    for effect <- [99526, 99528] do
+      assert {:ok, %{raw_damage: 286, final_damage_verified: false}} = audit.base_damage[effect]
+    end
+
+    refute audit.chain.execution_enabled
+    assert audit.execution_blocker == :unverified_spell4_combat
+    assert Instance.get_creature(ctx.key, ctx.target).entity.health == 100
+    assert Characters.get_character(ctx.character.id).total_xp == ctx.character.total_xp
+    assert BezgelorWorld.Spell4Diagnostics.inspect_spell(999_999_999) == :error
+  end
+
+  test "Charged Shot and Soothe threshold spells are retained without guessing a charge level",
+       _ctx do
+    for id <- [34718, 33140] do
+      assert {:ok, audit} = BezgelorWorld.Spell4Diagnostics.inspect_spell(id)
+      assert length(audit.thresholds) == 3
+      refute audit.chain.execution_enabled
+    end
+  end
+
+  test "sourced effect rows from all six classes reproduce base-only float32 vectors", ctx do
+    context = %BezgelorCore.Spell4Context{
+      caster: %{
+        type: :player,
+        level: 50,
+        properties: %{35 => 400, 141 => 1.0, 142 => 1.0, 143 => 1.0}
+      },
+      target: %{}
+    }
+
+    # Explicit fixture properties, not generated live-character statistics.
+    # Shred's 220 (not 221) preserves the source's float32 arithmetic and truncation.
+    for {effect_id, expected} <- [
+          {177_056, 385},
+          {177_438, 710},
+          {62159, 934},
+          {83788, 220},
+          {79090, 588},
+          {99526, 286},
+          {141_368, 223}
+        ] do
+      effect = BezgelorData.Spell4Catalog.row("Spell4Effects", effect_id)
+      formula = BezgelorData.Spell4Catalog.row("GameFormula", 1266)
+
+      assert {:ok, %{raw_damage: ^expected, final_damage_verified: false}} =
+               BezgelorCore.Spell4BaseDamage.calculate(effect, context, formula)
+    end
+
+    assert Instance.get_creature(ctx.key, ctx.target).entity.health == 100
+    assert Characters.get_character(ctx.character.id).total_xp == ctx.character.total_xp
+  end
 end

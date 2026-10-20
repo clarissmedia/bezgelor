@@ -1,0 +1,868 @@
+{
+  "notice": "All vectors use explicit synthetic properties, not live stats or final damage. No world effects.",
+  "coverage": [
+    {
+      "description": "Warrior - Relentless Strikes - Builder - Combo - Base - Tier 1",
+      "cooldown": 0,
+      "thresholds": [
+        {
+          "ID": 9,
+          "iconReplacement": "Icon_SkillPhysical_UI_wr_lng",
+          "localizedTextIdTooltip": 240442,
+          "orderIndex": 0,
+          "spell4IdParent": 32078,
+          "spell4IdToCast": 32079,
+          "thresholdDuration": 0,
+          "visualEffectId": 0,
+          "vitalCostValue00": 0,
+          "vitalCostValue01": 0,
+          "vitalEnumCostType00": 0,
+          "vitalEnumCostType01": 0
+        },
+        {
+          "ID": 10,
+          "iconReplacement": "Icon_SkillPhysical_UI_wr_lng",
+          "localizedTextIdTooltip": 240443,
+          "orderIndex": 1,
+          "spell4IdParent": 32078,
+          "spell4IdToCast": 32080,
+          "thresholdDuration": 0,
+          "visualEffectId": 0,
+          "vitalCostValue00": 0,
+          "vitalCostValue01": 0,
+          "vitalEnumCostType00": 0,
+          "vitalEnumCostType01": 0
+        }
+      ],
+      "spell_id": 32078,
+      "class_id": 1,
+      "base_id": 18309,
+      "reachable_spells": [
+        32078,
+        32079,
+        32080,
+        53865,
+        60947,
+        70033,
+        70045,
+        70054
+      ],
+      "effect_types": [
+        1,
+        8,
+        17,
+        26
+      ],
+      "direct_effect_ids": [
+        177146
+      ],
+      "damage_effect_ids": [
+        177056,
+        177098,
+        177121
+      ],
+      "heal_effect_ids": [],
+      "cast_time": 0,
+      "phases": [],
+      "execution_enabled": false,
+      "blocker": "Final damage, authoritative stats, phases/events and target policy are incomplete"
+    },
+    {
+      "description": "Spellslinger - Gate - Norm - Base - Tier 1",
+      "cooldown": 30000,
+      "thresholds": [],
+      "spell_id": 34355,
+      "class_id": 7,
+      "base_id": 20325,
+      "reachable_spells": [
+        25190,
+        30436,
+        34355
+      ],
+      "effect_types": [
+        3,
+        4,
+        11,
+        17,
+        26
+      ],
+      "direct_effect_ids": [
+        67776,
+        67777,
+        67778,
+        67779
+      ],
+      "damage_effect_ids": [],
+      "heal_effect_ids": [],
+      "cast_time": 0,
+      "phases": [],
+      "execution_enabled": false,
+      "blocker": "Final damage, authoritative stats, phases/events and target policy are incomplete"
+    },
+    {
+      "description": "Spellslinger - Charged Shot - Normal - Tier 1",
+      "cooldown": 10000,
+      "thresholds": [
+        {
+          "ID": 123,
+          "iconReplacement": "",
+          "localizedTextIdTooltip": 0,
+          "orderIndex": 1,
+          "spell4IdParent": 34718,
+          "spell4IdToCast": 34722,
+          "thresholdDuration": 1000,
+          "visualEffectId": 0,
+          "vitalCostValue00": 0,
+          "vitalCostValue01": 0,
+          "vitalEnumCostType00": 0,
+          "vitalEnumCostType01": 0
+        },
+        {
+          "ID": 124,
+          "iconReplacement": "",
+          "localizedTextIdTooltip": 0,
+          "orderIndex": 2,
+          "spell4IdParent": 34718,
+          "spell4IdToCast": 36691,
+          "thresholdDuration": 1400,
+          "visualEffectId": 0,
+          "vitalCostValue00": 0,
+          "vitalCostValue01": 0,
+          "vitalEnumCostType00": 15,
+          "vitalEnumCostType01": 0
+        },
+        {
+          "ID": 125,
+          "iconReplacement": "",
+          "localizedTextIdTooltip": 0,
+          "orderIndex": 0,
+          "spell4IdParent": 34718,
+          "spell4IdToCast": 34720,
+          "thresholdDuration": 0,
+          "visualEffectId": 0,
+          "vitalCostValue00": 0,
+          "vitalCostValue01": 0,
+          "vitalEnumCostType00": 0,
+          "vitalEnumCostType01": 0
+        }
+      ],
+      "spell_id": 34718,
+      "class_id": 7,
+      "base_id": 20684,
+      "reachable_spells": [
+        34718,
+        34720,
+        34722,
+        36691
+      ],
+      "effect_types": [
+        8,
+        17,
+        73
+      ],
+      "direct_effect_ids": [
+        75878
+      ],
+      "damage_effect_ids": [
+        83529,
+        69044,
+        77123
+      ],
+      "heal_effect_ids": [],
+      "cast_time": 0,
+      "phases": [],
+      "execution_enabled": false,
+      "blocker": "Final damage, authoritative stats, phases/events and target policy are incomplete"
+    },
+    {
+      "description": "Spellslinger - Quick Draw - Normal - Base - Tier 1",
+      "cooldown": 0,
+      "thresholds": [],
+      "spell_id": 43468,
+      "class_id": 7,
+      "base_id": 27638,
+      "reachable_spells": [
+        43468,
+        43498,
+        43499,
+        43500
+      ],
+      "effect_types": [
+        8,
+        17,
+        26,
+        80
+      ],
+      "direct_effect_ids": [
+        196513,
+        196514,
+        196515,
+        196516,
+        196517,
+        196518,
+        196519,
+        196521,
+        196522
+      ],
+      "damage_effect_ids": [
+        99526,
+        99528
+      ],
+      "heal_effect_ids": [],
+      "cast_time": 1000,
+      "phases": [
+        {
+          "ID": 5882,
+          "orderIndex": 0,
+          "phaseDelay": 0,
+          "phaseFlags": 0,
+          "spell4IdOwner": 43468
+        },
+        {
+          "ID": 5883,
+          "orderIndex": 1,
+          "phaseDelay": 366,
+          "phaseFlags": 512,
+          "spell4IdOwner": 43468
+        },
+        {
+          "ID": 5884,
+          "orderIndex": 2,
+          "phaseDelay": 200,
+          "phaseFlags": 0,
+          "spell4IdOwner": 43468
+        },
+        {
+          "ID": 5885,
+          "orderIndex": 3,
+          "phaseDelay": 200,
+          "phaseFlags": 4,
+          "spell4IdOwner": 43468
+        },
+        {
+          "ID": 5886,
+          "orderIndex": 4,
+          "phaseDelay": 234,
+          "phaseFlags": 0,
+          "spell4IdOwner": 43468
+        }
+      ],
+      "execution_enabled": false,
+      "blocker": "Final damage, authoritative stats, phases/events and target policy are incomplete"
+    },
+    {
+      "description": "Warrior - Rampage - 1 - Tier 1",
+      "cooldown": 8000,
+      "thresholds": [
+        {
+          "ID": 1073,
+          "iconReplacement": "",
+          "localizedTextIdTooltip": 0,
+          "orderIndex": 0,
+          "spell4IdParent": 58524,
+          "spell4IdToCast": 66987,
+          "thresholdDuration": 0,
+          "visualEffectId": 0,
+          "vitalCostValue00": 0,
+          "vitalCostValue01": 0,
+          "vitalEnumCostType00": 0,
+          "vitalEnumCostType01": 0
+        },
+        {
+          "ID": 1074,
+          "iconReplacement": "",
+          "localizedTextIdTooltip": 0,
+          "orderIndex": 1,
+          "spell4IdParent": 58524,
+          "spell4IdToCast": 71125,
+          "thresholdDuration": 0,
+          "visualEffectId": 0,
+          "vitalCostValue00": 0,
+          "vitalCostValue01": 0,
+          "vitalEnumCostType00": 0,
+          "vitalEnumCostType01": 0
+        },
+        {
+          "ID": 1075,
+          "iconReplacement": "",
+          "localizedTextIdTooltip": 0,
+          "orderIndex": 2,
+          "spell4IdParent": 58524,
+          "spell4IdToCast": 71126,
+          "thresholdDuration": 0,
+          "visualEffectId": 0,
+          "vitalCostValue00": 0,
+          "vitalCostValue01": 0,
+          "vitalEnumCostType00": 0,
+          "vitalEnumCostType01": 0
+        }
+      ],
+      "spell_id": 58524,
+      "class_id": 1,
+      "base_id": 37968,
+      "reachable_spells": [
+        58524,
+        66987,
+        70135,
+        71125,
+        71126,
+        71392,
+        71393,
+        71394
+      ],
+      "effect_types": [
+        8,
+        26
+      ],
+      "direct_effect_ids": [
+        177439
+      ],
+      "damage_effect_ids": [
+        177438,
+        183076,
+        183077,
+        183078
+      ],
+      "heal_effect_ids": [],
+      "cast_time": 0,
+      "phases": [],
+      "execution_enabled": false,
+      "blocker": "Final damage, authoritative stats, phases/events and target policy are incomplete"
+    },
+    {
+      "description": "Esper - Telekinetic Strike - Tier 1",
+      "cooldown": 0,
+      "thresholds": [],
+      "spell_id": 32893,
+      "class_id": 3,
+      "base_id": 19102,
+      "reachable_spells": [
+        30900,
+        32893,
+        41869,
+        77116
+      ],
+      "effect_types": [
+        1,
+        8,
+        17,
+        26
+      ],
+      "direct_effect_ids": [
+        62159,
+        62204
+      ],
+      "damage_effect_ids": [
+        62159
+      ],
+      "heal_effect_ids": [],
+      "cast_time": 1250,
+      "phases": [],
+      "execution_enabled": false,
+      "blocker": "Final damage, authoritative stats, phases/events and target policy are incomplete"
+    },
+    {
+      "description": "Esper - Soothe - Tier 1",
+      "cooldown": 0,
+      "thresholds": [
+        {
+          "ID": 224,
+          "iconReplacement": "",
+          "localizedTextIdTooltip": 0,
+          "orderIndex": 0,
+          "spell4IdParent": 33140,
+          "spell4IdToCast": 36897,
+          "thresholdDuration": 0,
+          "visualEffectId": 0,
+          "vitalCostValue00": 0,
+          "vitalCostValue01": 0,
+          "vitalEnumCostType00": 0,
+          "vitalEnumCostType01": 0
+        },
+        {
+          "ID": 225,
+          "iconReplacement": "",
+          "localizedTextIdTooltip": 0,
+          "orderIndex": 1,
+          "spell4IdParent": 33140,
+          "spell4IdToCast": 36941,
+          "thresholdDuration": 1250,
+          "visualEffectId": 0,
+          "vitalCostValue00": 0,
+          "vitalCostValue01": 0,
+          "vitalEnumCostType00": 0,
+          "vitalEnumCostType01": 0
+        },
+        {
+          "ID": 226,
+          "iconReplacement": "",
+          "localizedTextIdTooltip": 0,
+          "orderIndex": 2,
+          "spell4IdParent": 33140,
+          "spell4IdToCast": 36942,
+          "thresholdDuration": 1250,
+          "visualEffectId": 0,
+          "vitalCostValue00": 0,
+          "vitalCostValue01": 0,
+          "vitalEnumCostType00": 0,
+          "vitalEnumCostType01": 0
+        }
+      ],
+      "spell_id": 33140,
+      "class_id": 3,
+      "base_id": 19207,
+      "reachable_spells": [
+        32822,
+        33140,
+        36897,
+        36941,
+        36942,
+        41869,
+        77116
+      ],
+      "effect_types": [
+        1,
+        10,
+        17,
+        26
+      ],
+      "direct_effect_ids": [
+        78279,
+        192394
+      ],
+      "damage_effect_ids": [],
+      "heal_effect_ids": [
+        78168,
+        78280,
+        78282
+      ],
+      "cast_time": 0,
+      "phases": [],
+      "execution_enabled": false,
+      "blocker": "Final damage, authoritative stats, phases/events and target policy are incomplete"
+    },
+    {
+      "description": "Stalker - Shred - Base - Tier 1",
+      "cooldown": 0,
+      "thresholds": [
+        {
+          "ID": 238,
+          "iconReplacement": "",
+          "localizedTextIdTooltip": 0,
+          "orderIndex": 0,
+          "spell4IdParent": 38765,
+          "spell4IdToCast": 38766,
+          "thresholdDuration": 0,
+          "visualEffectId": 0,
+          "vitalCostValue00": 0,
+          "vitalCostValue01": 0,
+          "vitalEnumCostType00": 0,
+          "vitalEnumCostType01": 0
+        }
+      ],
+      "spell_id": 38765,
+      "class_id": 5,
+      "base_id": 23148,
+      "reachable_spells": [
+        38765,
+        38766,
+        38767,
+        39467
+      ],
+      "effect_types": [
+        8,
+        26
+      ],
+      "direct_effect_ids": [
+        83776
+      ],
+      "damage_effect_ids": [
+        83788,
+        86439
+      ],
+      "heal_effect_ids": [],
+      "cast_time": 0,
+      "phases": [],
+      "execution_enabled": false,
+      "blocker": "Final damage, authoritative stats, phases/events and target policy are incomplete"
+    },
+    {
+      "description": "Engineer - Pulse Blast - Base - Tier 1",
+      "cooldown": 0,
+      "thresholds": [],
+      "spell_id": 42276,
+      "class_id": 2,
+      "base_id": 26468,
+      "reachable_spells": [
+        37302,
+        42276
+      ],
+      "effect_types": [
+        8,
+        17,
+        26
+      ],
+      "direct_effect_ids": [
+        95881,
+        159547
+      ],
+      "damage_effect_ids": [
+        79090,
+        79092,
+        79093
+      ],
+      "heal_effect_ids": [],
+      "cast_time": 1250,
+      "phases": [
+        {
+          "ID": 5390,
+          "orderIndex": 0,
+          "phaseDelay": 0,
+          "phaseFlags": 0,
+          "spell4IdOwner": 42276
+        },
+        {
+          "ID": 5391,
+          "orderIndex": 1,
+          "phaseDelay": 1250,
+          "phaseFlags": 512,
+          "spell4IdOwner": 42276
+        }
+      ],
+      "execution_enabled": false,
+      "blocker": "Final damage, authoritative stats, phases/events and target policy are incomplete"
+    },
+    {
+      "description": "Medic - Discharge - Base - Tier 1",
+      "cooldown": 0,
+      "thresholds": [],
+      "spell_id": 58832,
+      "class_id": 4,
+      "base_id": 38201,
+      "reachable_spells": [
+        42568,
+        42569,
+        58832,
+        80382,
+        80383
+      ],
+      "effect_types": [
+        1,
+        8,
+        17,
+        26,
+        80
+      ],
+      "direct_effect_ids": [
+        141368,
+        173926
+      ],
+      "damage_effect_ids": [
+        141368
+      ],
+      "heal_effect_ids": [],
+      "cast_time": 0,
+      "phases": [],
+      "execution_enabled": false,
+      "blocker": "Final damage, authoritative stats, phases/events and target policy are incomplete"
+    },
+    {
+      "description": "Medic - Emission - Base - Tier 1",
+      "cooldown": 0,
+      "thresholds": [],
+      "spell_id": 58841,
+      "class_id": 4,
+      "base_id": 38210,
+      "reachable_spells": [
+        42568,
+        42569,
+        58841,
+        80382,
+        80383
+      ],
+      "effect_types": [
+        1,
+        10,
+        17,
+        26,
+        73,
+        80
+      ],
+      "direct_effect_ids": [
+        141384,
+        174154,
+        179618
+      ],
+      "damage_effect_ids": [],
+      "heal_effect_ids": [
+        141384
+      ],
+      "cast_time": 0,
+      "phases": [],
+      "execution_enabled": false,
+      "blocker": "Final damage, authoritative stats, phases/events and target policy are incomplete"
+    }
+  ],
+  "effect_types": [
+    {
+      "code": 1,
+      "name": "vital_modifier"
+    },
+    {
+      "code": 3,
+      "name": "forced_move"
+    },
+    {
+      "code": 4,
+      "name": "cc_state_set"
+    },
+    {
+      "code": 8,
+      "name": "damage"
+    },
+    {
+      "code": 10,
+      "name": "heal"
+    },
+    {
+      "code": 11,
+      "name": "unit_property_modifier"
+    },
+    {
+      "code": 17,
+      "name": "fluff"
+    },
+    {
+      "code": 26,
+      "name": "proxy"
+    },
+    {
+      "code": 73,
+      "name": "modify_spell_cooldown"
+    },
+    {
+      "code": 80,
+      "name": "spell_force_remove"
+    }
+  ],
+  "execution_enabled": false,
+  "schema_version": 1,
+  "source_commit": "f9bb26efddbf304003fc8ebf484ac75bc6be84da",
+  "synthetic_context": {
+    "level": 50,
+    "assault_rating": 400,
+    "support_rating": 200,
+    "damage_dealt_multipliers": 1.0
+  },
+  "base_damage_vectors": [
+    {
+      "result": {
+        "entity_term": 900.0,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 34.0,
+        "raw_damage": 934
+      },
+      "spell_id": 32893,
+      "effect_id": 62159
+    },
+    {
+      "result": {
+        "entity_term": 1495.0,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 57.0,
+        "raw_damage": 1552
+      },
+      "spell_id": 34722,
+      "effect_id": 69044
+    },
+    {
+      "result": {
+        "entity_term": 2989.0,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 113.0,
+        "raw_damage": 3102
+      },
+      "spell_id": 36691,
+      "effect_id": 77123
+    },
+    {
+      "result": {
+        "entity_term": 553.5,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 35.0,
+        "raw_damage": 588
+      },
+      "spell_id": 37302,
+      "effect_id": 79090
+    },
+    {
+      "result": {
+        "entity_term": 459.0,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 29.0,
+        "raw_damage": 488
+      },
+      "spell_id": 37302,
+      "effect_id": 79092
+    },
+    {
+      "result": {
+        "entity_term": 371.0,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 24.0,
+        "raw_damage": 395
+      },
+      "spell_id": 37302,
+      "effect_id": 79093
+    },
+    {
+      "result": {
+        "entity_term": 647.5,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 25.0,
+        "raw_damage": 672
+      },
+      "spell_id": 34720,
+      "effect_id": 83529
+    },
+    {
+      "result": {
+        "entity_term": 210.99998474121094,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 10.0,
+        "raw_damage": 220
+      },
+      "spell_id": 38767,
+      "effect_id": 83788
+    },
+    {
+      "result": {
+        "entity_term": 210.99998474121094,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 10.0,
+        "raw_damage": 220
+      },
+      "spell_id": 39467,
+      "effect_id": 86439
+    },
+    {
+      "result": {
+        "entity_term": 275.0,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 11.0,
+        "raw_damage": 286
+      },
+      "spell_id": 43498,
+      "effect_id": 99526
+    },
+    {
+      "result": {
+        "entity_term": 275.0,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 11.0,
+        "raw_damage": 286
+      },
+      "spell_id": 43499,
+      "effect_id": 99528
+    },
+    {
+      "result": {
+        "entity_term": 213.00001525878906,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 10.0,
+        "raw_damage": 223
+      },
+      "spell_id": 58832,
+      "effect_id": 141368
+    },
+    {
+      "result": {
+        "entity_term": 362.0,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 23.0,
+        "raw_damage": 385
+      },
+      "spell_id": 70033,
+      "effect_id": 177056
+    },
+    {
+      "result": {
+        "entity_term": 362.0,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 23.0,
+        "raw_damage": 385
+      },
+      "spell_id": 70045,
+      "effect_id": 177098
+    },
+    {
+      "result": {
+        "entity_term": 362.0,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 23.0,
+        "raw_damage": 385
+      },
+      "spell_id": 70054,
+      "effect_id": 177121
+    },
+    {
+      "result": {
+        "entity_term": 667.0,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 43.0,
+        "raw_damage": 710
+      },
+      "spell_id": 70135,
+      "effect_id": 177438
+    },
+    {
+      "result": {
+        "entity_term": 667.0,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 43.0,
+        "raw_damage": 710
+      },
+      "spell_id": 71392,
+      "effect_id": 183076
+    },
+    {
+      "result": {
+        "entity_term": 667.0,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 43.0,
+        "raw_damage": 710
+      },
+      "spell_id": 71393,
+      "effect_id": 183077
+    },
+    {
+      "result": {
+        "entity_term": 667.0,
+        "final_damage_verified": false,
+        "multiplier": 1.0,
+        "property_term": 43.0,
+        "raw_damage": 710
+      },
+      "spell_id": 71394,
+      "effect_id": 183078
+    }
+  ]
+}

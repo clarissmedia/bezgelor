@@ -1,8 +1,8 @@
 defmodule BezgelorCore.CharacterStats do
   @moduledoc """
-  Character combat stat calculations.
+  Legacy demonstration combat stat calculations, not verified WildStar formulas.
 
-  WildStar uses 6 primary attributes that convert to combat stats:
+  This module's historical attribute model is:
   - Brutality -> Assault Power (DPS)
   - Finesse -> Strikethrough (Hit Rating)
   - Moxie -> Critical Hit Rating
@@ -10,8 +10,9 @@ defmodule BezgelorCore.CharacterStats do
   - Insight -> Deflect Critical
   - Grit -> Armor, Max Health
 
-  This module computes effective combat stats from character level,
-  class, and any active buff modifiers.
+  Level constants, class identifiers and multipliers below are legacy demo
+  assumptions. They are preserved for existing supported demo spells and must
+  not populate the raw property context used by Spell4BaseDamage.
   """
 
   @type combat_stats :: %{
@@ -25,7 +26,7 @@ defmodule BezgelorCore.CharacterStats do
           max_health: non_neg_integer()
         }
 
-  # Base stat per level (WildStar-authentic scaling)
+  # Legacy demonstration scaling; no original-game formula is established here.
   @base_stat_per_level 10
   @base_health_per_level 50
   @base_crit_chance 5

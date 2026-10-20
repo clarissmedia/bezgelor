@@ -1,0 +1,128 @@
+{
+  "initial_branch": "repair/spell4-effects-audit",
+  "initial_commit": "a1f2257",
+  "initial_tracked_and_untracked_changes": [],
+  "tables": [
+    {
+      "table": "GameFormula",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\GameFormula.tbl",
+      "sha256": "541e1781b8ed5e890cd194e0ad8bf1ceae63cbbb5308026679bc8459e2c1c007",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "Prerequisite",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\Prerequisite.tbl",
+      "sha256": "59b19c883aa922070518c432ba6dafb94f7d3c5b3c8e6f7468a474f8479d88ee",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "Spell4",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\Spell4.tbl",
+      "sha256": "303c03cf9ee268b1556cc65c2b56c62d21d083504a7a16eac2cac80d34f1914d",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "Spell4AoeTargetConstraints",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\Spell4AoeTargetConstraints.tbl",
+      "sha256": "746a210f1634d6575e42b2411019bbbd9d1a7a579d112627604412801dc56b42",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "Spell4Base",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\Spell4Base.tbl",
+      "sha256": "34e3faeeee7c4b9889b808a36ec69b40218ebe013cbf95e9e26fc6440005c93a",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "Spell4CastResult",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\Spell4CastResult.tbl",
+      "sha256": "24b27559b392b80da90ce24e0c2ce1ef6fb555df26c89bfdf0d40d0883c4ac58",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "Spell4EffectGroupList",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\Spell4EffectGroupList.tbl",
+      "sha256": "52dcc387869fa789b6c951445a71bcd17b2c6f10452ccf998c808e8a0c9ce36b",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "Spell4EffectModification",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\Spell4EffectModification.tbl",
+      "sha256": "df0bee0cc142f2f5bf78fdac55c0a306b8c3703a86626475286f53eb6e55488c",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "Spell4Effects",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\Spell4Effects.tbl",
+      "sha256": "ad49cb47af98a4b9b85e5f715af85545a8b286fb3ca1f26ad8cf8ea09097b3ed",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "Spell4Runner",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\Spell4Runner.tbl",
+      "sha256": "7b42e448924100c7df94d2d25e9d7828d73e8f7d295d353af712d95ddfd54bb9",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "Spell4TargetMechanics",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\Spell4TargetMechanics.tbl",
+      "sha256": "04667392e8a0b8383de3a6dfd670861121ca585bc47735b75fc437d744e56481",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "Spell4Telegraph",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\Spell4Telegraph.tbl",
+      "sha256": "1f64cdaef371c1ef1d15db59cf035ffe18731e1b4964bac21848c9351b68f878",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "Spell4Thresholds",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\Spell4Thresholds.tbl",
+      "sha256": "e078036cba584787e454913b3ecf04948b1e9d909080f5148b776697795746e9",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "Spell4ValidTargets",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\Spell4ValidTargets.tbl",
+      "sha256": "0a4eb8d36e2e5672c5095556f186882f5c99728c2c79f70fc77095c6c4d0cda5",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "SpellCoolDown",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\SpellCoolDown.tbl",
+      "sha256": "1f3d19109d2a1d75110a218c6fe0329d3238c9be2be0387fa6d11f2a8eb31d40",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "SpellEffectType",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\SpellEffectType.tbl",
+      "sha256": "ad4f2b7322ca64eabd692402e0b762aead48b84cded36e3a56f9385c549a4570",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "SpellPhase",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\SpellPhase.tbl",
+      "sha256": "49591d2fcb811bca55e2db51593fdd2b8b0b40e52a27d316dc33dcaf21f3b67c",
+      "matches_extracted_copy": true
+    },
+    {
+      "table": "TelegraphDamage",
+      "source": "E:\\WILDSTAR\\SERVEUR\\WORLD\\tbl\\TelegraphDamage.tbl",
+      "sha256": "39124c7cc37af1aaca9d33b5e7099d04327aeec5c15e7e8aef606b8cbb03b565",
+      "matches_extracted_copy": true
+    }
+  ],
+  "catalogue_sha256": "490642ce5d2f53e482a9d1de776b32c1b9e8efcafe289b66206bf2be20d26fad",
+  "corrected_reader": {
+    "path": "apps/bezgelor_data/lib/bezgelor_data/tbl.ex",
+    "sha256": "93be200df4d8ad10f8398c018fdc5942ebd8c3ef7e691cf01b8a435e00fcd585"
+  },
+  "historical_reader": {
+    "path": "tools/tbl_extractor/tbl_extractor.py",
+    "sha256": "4f50a9f8fd778868043954f201e292a0d06f922786083c645ae534976bb693e7"
+  },
+  "installed_legacy_damage_handler": {
+    "path": "E:/WILDSTAR/SERVEUR/REWORK/Source/NexusForever.Game/Spell/SpellEffectHandler.cs",
+    "sha256": "7479b478f16966f1aacc648aa901b6059b88ae5ecf697d9509d3c84cc8151e77"
+  }
+}

@@ -8,6 +8,9 @@ defmodule BezgelorCore.SpellEffect do
   may have multiple effects (e.g., damage + debuff). This module also provides
   pure functions for calculating effect values.
 
+  These are legacy demonstration formulas and packet effect codes, not the
+  original Spell4 effect types or a verified WildStar combat calculator.
+
   ## Effect Types
 
   | Type | Description |

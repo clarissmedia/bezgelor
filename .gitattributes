@@ -1,3 +1,6 @@
 
 # Use bd merge for beads JSONL files
 .beads/issues.jsonl merge=beads
+
+# Keep the reproducible Spell4 extraction byte-identical on Windows and Linux.
+apps/bezgelor_data/priv/data/spell4_combat_reference.json text eol=lf

@@ -1,0 +1,62 @@
+{
+  "sha": "f9bb26efddbf304003fc8ebf484ac75bc6be84da",
+  "date": "2026-09-27T11:10:43Z",
+  "url": "https://github.com/NexusForever/NexusForever/commit/f9bb26efddbf304003fc8ebf484ac75bc6be84da",
+  "files": [
+    {
+      "path": "NexusForever.Game/Combat/DamageCalculator.cs",
+      "sha256": "92f051ef29bd78d21ea8b0865061c069f59beacc5d880dc26563e4263c82d554",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game/Combat/DamageCalculator.cs"
+    },
+    {
+      "path": "NexusForever.Game/Spell/Spell.cs",
+      "sha256": "39e4a2bd764f0e869259c713c8e31ccc5a2d8575692ffe77a2b80a3291ca885a",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game/Spell/Spell.cs"
+    },
+    {
+      "path": "NexusForever.Game/Spell/SpellEffectHandler.cs",
+      "sha256": "519449c19fbd21d1ccf0cc55a0e153abcfb415afb24c4dfbeda391fed1d55cdf",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game/Spell/SpellEffectHandler.cs"
+    },
+    {
+      "path": "NexusForever.Game/Spell/Telegraph.cs",
+      "sha256": "bda96fae19b37bc44a0a1d1d5f8a763e4746e9ddcef69dff6c715cd0e05bab57",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game/Spell/Telegraph.cs"
+    },
+    {
+      "path": "NexusForever.Game/Entity/ItemInfo.cs",
+      "sha256": "70dbdb10691d185c0721dfd2810e8d2ff8e2c3a66c85fe05c518a932bded4c39",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game/Entity/ItemInfo.cs"
+    },
+    {
+      "path": "NexusForever.GameTable/GameTable.cs",
+      "sha256": "d9822c69a9427f44d8a5cdfce2638cff38793287d8bac866727f1adf501ecefc",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.GameTable/GameTable.cs"
+    },
+    {
+      "path": "NexusForever.Game.Static/Spell/SpellEffectParameterType.cs",
+      "sha256": "363c5b0f92daef111797525822c118929db1a52a19d2787d66af1f7a835b3d3a",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game.Static/Spell/SpellEffectParameterType.cs"
+    },
+    {
+      "path": "NexusForever.Game.Static/Spell/SpellEffectType.cs",
+      "sha256": "7d6528da49980e074d7035f6ab75ba0a64a8b94717681e6981cd249a2748948f",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game.Static/Spell/SpellEffectType.cs"
+    },
+    {
+      "path": "NexusForever.Game.Static/Entity/Property.cs",
+      "sha256": "b29a836c9521bf69d4907095486cbe24cf97757343a1db907992024af92f2a71",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game.Static/Entity/Property.cs"
+    },
+    {
+      "path": "NexusForever.Game.Abstract/Entity/IWorldEntity.cs",
+      "sha256": "aec51383457ea0047f3f1bc23d0d2e764d1cb9c75c424cdce1cf1f4b0e0ce83a",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.Game.Abstract/Entity/IWorldEntity.cs"
+    },
+    {
+      "path": "NexusForever.GameTable/GameTableHeader.cs",
+      "sha256": "3cd972391bba086b37038c0e96bf11c218d5277882282f879883a9ae4012b9ac",
+      "url": "https://github.com/NexusForever/NexusForever/blob/f9bb26efddbf304003fc8ebf484ac75bc6be84da/Source/NexusForever.GameTable/GameTableHeader.cs"
+    }
+  ]
+}

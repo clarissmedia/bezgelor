@@ -219,7 +219,10 @@ defmodule BezgelorData do
   """
   @spec get_spell4_entry(non_neg_integer()) :: {:ok, map()} | :error
   def get_spell4_entry(spell4_id) do
-    Store.get(:spell4_entries, spell4_id)
+    case BezgelorData.Spell4Catalog.spell_entry(spell4_id) do
+      {:ok, entry} -> {:ok, entry}
+      :error -> Store.get(:spell4_entries, spell4_id)
+    end
   end
 
   @doc """
