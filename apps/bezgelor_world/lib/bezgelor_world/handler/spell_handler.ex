@@ -584,7 +584,7 @@ defmodule BezgelorWorld.Handler.SpellHandler do
 
   defp is_creature_guid?(_), do: false
 
-  defp handle_cast_start(spell, _packet, player_guid, _cast_time, state) do
+  defp handle_cast_start(spell, packet, player_guid, _cast_time, state) do
     # Get caster info from session
     position = state.session_data[:position] || {0.0, 0.0, 0.0}
     yaw = state.session_data[:yaw] || 0.0
@@ -599,7 +599,7 @@ defmodule BezgelorWorld.Handler.SpellHandler do
         casting_id: casting_id,
         spell4_id: spell.id,
         caster_id: caster_id,
-        primary_target_id: caster_id,
+        primary_target_id: if(spell.target_type == :self, do: caster_id, else: packet.target_guid),
         position: position,
         yaw: yaw,
         user_initiated: true
