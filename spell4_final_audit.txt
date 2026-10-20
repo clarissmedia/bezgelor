@@ -1,0 +1,463 @@
+﻿=== ENTREE ET VALIDATION DES SORTS ===
+    unless state.session_data[:in_world] do
+      Logger.warning("Spell cast received before player entered world")
+      {:error, :not_in_world}
+    else
+      process_cast(packet, state)
+    end
+  end
+
+  defp process_cast(packet, state) do
+    player_guid = state.session_data[:entity_guid]
+    character = state.session_data[:character]
+
+    # Look up the spell ID from the character's ability inventory using bag_index
+    # This matches NexusForever: Inventory.GetItem(InventoryLocation.Ability, bagIndex)
+    spell_id = resolve_spell_from_bag(packet.bag_index, state)
+
+    if spell_id == nil do
+      Logger.warning(
+        "[SpellHandler] No ability at bag_index #{packet.bag_index} for character #{character && character.id}"
+      )
+
+      send_cast_result(:failed, :not_known, 0, state)
+    else
+      spell = Spell.get(spell_id)
+
+      # Get target from player's current target state (stored in session_data)
+      target_guid = state.session_data[:target_guid] || 0
+      target_position = state.session_data[:position] || {0.0, 0.0, 0.0}
+
+      # Create a normalized packet struct for the rest of the handler
+      normalized_packet = %{
+        spell_id: spell_id,
+        target_guid: target_guid,
+        target_position: target_position,
+        client_unique_id: packet.client_unique_id,
+        button_pressed: packet.button_pressed
+      }
+
+      cond do
+        spell == nil ->
+          Logger.warning("[SpellHandler] Unknown spell_id #{spell_id}")
+          send_cast_result(:failed, :not_known, spell_id, state)
+
+        not validate_target(spell, normalized_packet, state) ->
+          send_cast_result(:failed, :invalid_target, spell_id, state)
+
+        not validate_range(spell, normalized_packet, state) ->
+          send_cast_result(:failed, :out_of_range, spell_id, state)
+
+        true ->
+          do_cast(spell, normalized_packet, player_guid, state)
+      end
+    end
+  end
+
+  # Resolve spell ID from action set shortcuts.
+  # The client sends bag_index which corresponds to a slot in the action set.
+  # We use shortcuts because they store both:
+  #   - object_id = Spell4Base ID (for display/icons)
+  #   - spell_id = Spell4 ID (for casting/effects)
+  # Ability items use Spell4Base IDs for icon display, but we need Spell4 ID for casting.
+  defp resolve_spell_from_bag(bag_index, state) do
+    character = state.session_data[:character]
+    active_spec = (character && character.active_spec) || 0
+
+    # Always use shortcuts for spell_id lookup since they have the correct Spell4 ID
+    resolve_from_shortcuts(bag_index, active_spec, state)
+  end
+
+  # Look up from action_set_shortcuts
+  defp resolve_from_shortcuts(bag_index, active_spec, state) do
+    shortcuts = state.session_data[:action_set_shortcuts] || []
+
+    shortcut =
+      Enum.find(shortcuts, fn s ->
+        s.slot == bag_index and s.spec_index == active_spec
+      end)
+
+    shortcut && shortcut.spell_id
+  end
+
+  defp do_cast(spell, packet, player_guid, state) do
+    # Get caster stats from character data and buff modifiers
+    caster_stats = get_caster_stats(state)
+
+    case SpellManager.cast_spell(
+           player_guid,
+           spell.id,
+           packet.target_guid,
+           packet.target_position,
+           caster_stats,
+           self()
+         ) do
+      {:ok, :instant, result} ->
+        handle_instant_cast(spell, packet, player_guid, result, state, false)
+
+      {:ok, :casting, cast_time} ->
+        handle_cast_start(spell, packet, player_guid, cast_time, state)
+
+      {:error, :cooldown} ->
+        send_cast_result(:failed, :cooldown, spell.id, state)
+
+      {:error, :already_casting} ->
+        send_cast_result(:failed, :already_casting, spell.id, state)
+
+      {:error, reason} ->
+        send_cast_result(:failed, reason, spell.id, state)
+    end
+  end
+
+  defp handle_instant_cast(spell, packet, player_guid, result, state, already_started) do
+    # Get caster info from session
+    position = state.session_data[:position] || {0.0, 0.0, 0.0}
+    yaw = state.session_data[:yaw] || 0.0
+    # Entity ID is the low 32 bits of the GUID
+=== CONSTRUCTION DES PAQUETS ET PORTEE ===
+
+  defp validate_target(spell, packet, _state) do
+    case spell.target_type do
+      :self ->
+        # Self-target doesn't need a target
+        true
+
+      :enemy ->
+        # Requires enemy target
+        packet.target_guid != 0
+
+      :ally ->
+        # Requires ally target
+        packet.target_guid != 0
+
+      :ground ->
+        # Requires ground position
+        true
+
+      :aoe ->
+        # AoE can be ground or target
+        true
+    end
+  end
+
+  defp validate_range(spell, packet, state) do
+    if spell.range == 0.0 do
+      # Self-cast, no range check
+      true
+    else
+      entity = state.session_data[:entity]
+
+      if entity == nil do
+        true
+      else
+        # Simple distance check (would need target position lookup in real impl)
+        # For Phase 8, just allow if we have a target
+        packet.target_guid != 0 or spell.target_type == :self
+      end
+    end
+  end
+
+  # Packet sending helpers
+
+  defp send_cast_result(result, reason, spell_id, state) do
+    packet = %ServerCastResult{
+      result: result,
+      reason: reason,
+      spell_id: spell_id
+    }
+
+    send_packet(:server_cast_result, packet, state)
+  end
+
+  defp send_spell_start_go_and_extra(spell_start, spell_go, extra_packets, state, already_started) do
+    # Encode ServerSpellStart
+    start_writer = PacketWriter.new()
+    {:ok, start_writer} = ServerSpellStart.write(spell_start, start_writer)
+    start_data = PacketWriter.to_binary(start_writer)
+
+    # Encode ServerSpellGo
+    go_writer = PacketWriter.new()
+    {:ok, go_writer} = ServerSpellGo.write(spell_go, go_writer)
+    go_data = PacketWriter.to_binary(go_writer)
+
+    # Send extra packets (like teleport) BEFORE spell packets so movement happens first
+    spell_packets =
+      if already_started do
+        [{:server_spell_go, go_data}]
+      else
+        [{:server_spell_start, start_data}, {:server_spell_go, go_data}]
+      end
+
+    packets = extra_packets ++ spell_packets
+
+    {:reply_multi_world_encrypted, packets, state}
+  end
+
+  defp send_packet(opcode, packet, state) do
+    writer = PacketWriter.new()
+
+    {:ok, writer} =
+      case opcode do
+        :server_spell_start -> ServerSpellStart.write(packet, writer)
+        :server_spell_go -> ServerSpellGo.write(packet, writer)
+        :server_spell_finish -> ServerSpellFinish.write(packet, writer)
+        :server_spell_effect -> ServerSpellEffect.write(packet, writer)
+        :server_cast_result -> ServerCastResult.write(packet, writer)
+        :server_cooldown -> ServerCooldown.write(packet, writer)
+      end
+
+    packet_data = PacketWriter.to_binary(writer)
+    # Use world encrypted for all spell packets on the world server
+    {:reply_world_encrypted, opcode, packet_data, state}
+  end
+
+  defp build_effect_packet(caster_guid, target_guid, spell_id, effect) do
+    case effect.type do
+      :damage ->
+        ServerSpellEffect.damage(
+          caster_guid,
+          target_guid,
+          spell_id,
+          effect.amount,
+          effect.is_crit
+        )
+
+      :heal ->
+        ServerSpellEffect.heal(caster_guid, target_guid, spell_id, effect.amount, effect.is_crit)
+
+      :buff ->
+        ServerSpellEffect.buff(caster_guid, target_guid, spell_id, effect.amount)
+
+      _ ->
+        ServerSpellEffect.damage(
+          caster_guid,
+          target_guid,
+          spell_id,
+          effect.amount,
+          effect.is_crit
+        )
+    end
+  end
+
+  # Get combat stats for the casting player
+=== DEFINITION SPELL ===
+defmodule BezgelorCore.Spell do
+  @moduledoc """
+  Spell definition and lookup.
+
+  ## Overview
+
+  This module defines the Spell struct and provides access to spell definitions.
+  For Phase 8, spell definitions are hardcoded. Future phases will load from
+  static game data tables.
+
+  ## Spell Properties
+
+  | Property | Type | Description |
+  |----------|------|-------------|
+  | id | integer | Unique spell identifier |
+  | name | string | Display name |
+  | cast_time | integer | Cast time in milliseconds (0 = instant) |
+  | cooldown | integer | Cooldown in milliseconds |
+  | gcd | boolean | Triggers global cooldown |
+  | range | float | Max range in game units (0 = self) |
+  | resource_cost | integer | Resource cost (mana, energy, etc.) |
+  | resource_type | atom | Type of resource consumed |
+  | target_type | atom | What can be targeted |
+  | aoe_radius | float | AoE radius (0 = single target) |
+  | effects | list | List of SpellEffect structs |
+  | interrupt_flags | list | What can interrupt the cast |
+  | spell_school | atom | Damage type for resistances |
+
+  ## Usage
+
+      iex> BezgelorCore.Spell.get(1)
+      %BezgelorCore.Spell{id: 1, name: "Fireball", ...}
+
+      iex> BezgelorCore.Spell.instant?(spell)
+      false
+  """
+
+  @type target_type :: :self | :enemy | :ally | :ground | :aoe
+  @type resource_type :: :mana | :energy | :focus | :none
+  @type spell_school :: :physical | :magic | :tech
+  @type interrupt_flag :: :damage | :movement | :stun | :silence
+
+  defstruct [
+    :id,
+    :name,
+    :description,
+    cast_time: 0,
+    cooldown: 0,
+    gcd: true,
+    range: 0.0,
+    resource_cost: 0,
+    resource_type: :none,
+    target_type: :self,
+    aoe_radius: 0.0,
+    effects: [],
+    interrupt_flags: [:damage, :stun, :silence],
+    spell_school: :magic,
+    hostile: false
+  ]
+
+  @type t :: %__MODULE__{
+          id: non_neg_integer(),
+          name: String.t(),
+          description: String.t() | nil,
+          cast_time: non_neg_integer(),
+          cooldown: non_neg_integer(),
+          gcd: boolean(),
+          range: float(),
+          resource_cost: non_neg_integer(),
+          resource_type: resource_type(),
+          target_type: target_type(),
+          aoe_radius: float(),
+          effects: list(),
+          interrupt_flags: [interrupt_flag()],
+          spell_school: spell_school(),
+          hostile: boolean()
+        }
+
+  # Test spells for Phase 8 (built at runtime to avoid compile-time issues)
+  defp build_spells do
+    alias BezgelorCore.SpellEffect
+
+    %{
+      1 => %__MODULE__{
+        id: 1,
+        name: "Fireball",
+        description: "Hurls a ball of fire at the target, dealing magic damage.",
+        cast_time: 2000,
+        cooldown: 5000,
+        gcd: true,
+        range: 30.0,
+        resource_cost: 20,
+        resource_type: :mana,
+        target_type: :enemy,
+        effects: [
+          %SpellEffect{
+            type: :damage,
+            amount: 100,
+            scaling: 0.5,
+            scaling_stat: :power,
+            school: :magic
+          }
+        ],
+        spell_school: :magic,
+        hostile: true
+      },
+      2 => %__MODULE__{
+        id: 2,
+        name: "Heal",
+        description: "Heals a friendly target.",
+        cast_time: 1500,
+        cooldown: 0,
+        gcd: true,
+        range: 30.0,
+        resource_cost: 25,
+        resource_type: :mana,
+        target_type: :ally,
+        effects: [
+          %SpellEffect{
+            type: :heal,
+            amount: 150,
+            scaling: 0.8,
+            scaling_stat: :support
+          }
+        ],
+        spell_school: :magic
+      },
+      3 => %__MODULE__{
+        id: 3,
+        name: "Quick Strike",
+        description: "A fast melee attack.",
+        cast_time: 0,
+        cooldown: 3000,
+        gcd: true,
+        range: 5.0,
+        resource_cost: 10,
+        resource_type: :energy,
+        target_type: :enemy,
+        effects: [
+          %SpellEffect{
+            type: :damage,
+            amount: 50,
+            scaling: 0.3,
+            scaling_stat: :power,
+            school: :physical
+          }
+        ],
+        interrupt_flags: [],
+        spell_school: :physical
+      },
+      4 => %__MODULE__{
+        id: 4,
+        name: "Shield",
+        description: "Surrounds yourself with a protective barrier.",
+        cast_time: 0,
+        cooldown: 30_000,
+        gcd: true,
+        range: 0.0,
+        resource_cost: 30,
+        resource_type: :mana,
+        target_type: :self,
+        effects: [
+          %SpellEffect{
+            type: :buff,
+            amount: 100,
+            duration: 10_000,
+            buff_type: :absorb
+          }
+        ],
+        spell_school: :magic
+      },
+      5 => %__MODULE__{
+        id: 5,
+        name: "Regeneration",
+        description: "Heals yourself over time.",
+        cast_time: 2000,
+        cooldown: 10_000,
+        gcd: true,
+        range: 0.0,
+        resource_cost: 35,
+        resource_type: :mana,
+        target_type: :self,
+        effects: [
+          %SpellEffect{
+            type: :hot,
+            amount: 25,
+            duration: 10_000,
+            tick_interval: 1000,
+            scaling: 0.2,
+            scaling_stat: :support
+          }
+        ],
+        spell_school: :magic
+      }
+    }
+  end
+
+  @doc """
+  Get a spell by ID.
+
+  First checks hardcoded test spells, then falls back to game data from Spell4Base.
+
+  ## Examples
+
+      iex> BezgelorCore.Spell.get(1)
+      %BezgelorCore.Spell{id: 1, name: "Fireball", ...}
+
+      iex> BezgelorCore.Spell.get(999)
+      nil
+  """
+  @spec get(non_neg_integer()) :: t() | nil
+  def get(id) when is_integer(id) do
+    case Map.get(build_spells(), id) do
+      nil -> get_from_game_data(id)
+      spell -> spell
+    end
+  end
+
+  # Fall back to game data for spells not in hardcoded list
+  @compile {:no_warn_undefined, [BezgelorData, BezgelorData.Store]}

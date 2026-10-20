@@ -4,7 +4,8 @@ defmodule BezgelorProtocol.Connection do
               BezgelorWorld.Quest.SessionQuestManager,
               BezgelorWorld.Quest.QuestPersistence,
               BezgelorWorld.WorldManager,
-              BezgelorWorld.VisibilityBroadcaster
+              BezgelorWorld.VisibilityBroadcaster,
+              BezgelorWorld.Handler.SpellHandler
             ]}
 
   @moduledoc """
@@ -167,6 +168,29 @@ defmodule BezgelorProtocol.Connection do
     )
 
     {:stop, :normal, %{state | state: :disconnected}}
+  end
+
+  # Timed spells complete on the owning world connection, not inside SpellManager.
+  def handle_info({:spell_cast_completed, guid, spell_id, target_guid, target_position, effects, casting_id}, state) do
+    case BezgelorWorld.Handler.SpellHandler.complete_cast(
+           guid, spell_id, target_guid, target_position, effects, casting_id, state
+         ) do
+      {:reply_multi_world_encrypted, packets, updated} ->
+        updated = Enum.reduce(packets, updated, fn {opcode, data}, acc ->
+          do_send_encrypted_world_packet(acc, opcode, data)
+        end)
+        {:noreply, updated}
+
+      {:reply_world_encrypted, opcode, data, updated} ->
+        {:noreply, do_send_encrypted_world_packet(updated, opcode, data)}
+
+      {:ok, updated} ->
+        {:noreply, updated}
+
+      other ->
+        Logger.warning("Unexpected timed spell completion result: #{inspect(other)}")
+        {:noreply, state}
+    end
   end
 
   # Handle game events for quest progress tracking

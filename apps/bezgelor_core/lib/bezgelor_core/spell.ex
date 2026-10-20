@@ -262,6 +262,16 @@ defmodule BezgelorCore.Spell do
   end
 
   @doc """
+  Inspect extracted Spell4 effect chains without applying combat effects.
+
+  Returns `:error` for spells not included in the verified reference snapshot.
+  This is intentionally separate from `get/1` and cannot grant damage.
+  """
+  @spec effect_analysis(non_neg_integer()) :: {:ok, map()} | :error
+  def effect_analysis(id) when is_integer(id),
+    do: BezgelorCore.Spell4EffectCatalog.analyze(id)
+
+  @doc """
   Check if a spell exists.
   """
   @spec exists?(non_neg_integer()) :: boolean()

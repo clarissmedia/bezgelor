@@ -168,10 +168,11 @@ defmodule BezgelorWorld.Handler.SpellHandler do
            spell.id,
            packet.target_guid,
            packet.target_position,
-           caster_stats
+           caster_stats,
+           self()
          ) do
       {:ok, :instant, result} ->
-        handle_instant_cast(spell, packet, player_guid, result, state)
+        handle_instant_cast(spell, packet, player_guid, result, state, false)
 
       {:ok, :casting, cast_time} ->
         handle_cast_start(spell, packet, player_guid, cast_time, state)
@@ -187,15 +188,20 @@ defmodule BezgelorWorld.Handler.SpellHandler do
     end
   end
 
-  defp handle_instant_cast(spell, packet, player_guid, result, state) do
+  defp handle_instant_cast(spell, packet, player_guid, result, state, already_started) do
     # Get caster info from session
     position = state.session_data[:position] || {0.0, 0.0, 0.0}
     yaw = state.session_data[:yaw] || 0.0
     # Entity ID is the low 32 bits of the GUID
     caster_id = player_guid &&& 0xFFFFFFFF
 
-    # Generate unique casting ID (simple incrementing counter)
-    casting_id = :erlang.unique_integer([:positive, :monotonic]) &&& 0xFFFFFFFF
+    # Reuse the cast ID that was sent in ServerSpellStart for timed casts.
+    casting_id =
+      if already_started do
+        Map.fetch!(result, :casting_id)
+      else
+        :erlang.unique_integer([:positive, :monotonic]) &&& 0xFFFFFFFF
+      end
 
     # Calculate destination for Gate teleport
     # NOTE: This destination calculation works, but the actual teleport doesn't.
@@ -275,8 +281,15 @@ defmodule BezgelorWorld.Handler.SpellHandler do
     world_key = {world_id, instance_id}
 
     # Apply effects to targets and collect kill info
-    {_effect_packets, kill_info} =
+    {effect_packets, kill_info} =
       apply_spell_effects(player_guid, packet.target_guid, spell, result.effects, world_key)
+
+    encoded_effect_packets =
+      Enum.map(effect_packets, fn effect_packet ->
+        writer = PacketWriter.new()
+        {:ok, writer} = ServerSpellEffect.write(effect_packet, writer)
+        {:server_spell_effect, PacketWriter.to_binary(writer)}
+      end)
 
     # Broadcast kill rewards if creature was killed
     if kill_info do
@@ -324,9 +337,9 @@ defmodule BezgelorWorld.Handler.SpellHandler do
     # See build_teleport_command/2 for documentation of failed approaches
     if spell.id == @gate_spell_id do
       teleport_packets = build_teleport_command(player_guid, destination)
-      send_spell_start_go_and_extra(spell_start, spell_go, teleport_packets, state)
+      send_spell_start_go_and_extra(spell_start, spell_go, teleport_packets, encoded_effect_packets, state, already_started)
     else
-      send_spell_start_go_and_extra(spell_start, spell_go, [], state)
+      send_spell_start_go_and_extra(spell_start, spell_go, [], encoded_effect_packets, state, already_started)
     end
   end
 
@@ -590,8 +603,8 @@ defmodule BezgelorWorld.Handler.SpellHandler do
     yaw = state.session_data[:yaw] || 0.0
     caster_id = player_guid &&& 0xFFFFFFFF
 
-    # Generate unique casting ID
-    casting_id = :erlang.unique_integer([:positive, :monotonic]) &&& 0xFFFFFFFF
+    # Use the ID assigned to this specific active cast by SpellManager.
+    casting_id = SpellManager.get_cast(player_guid).casting_id
 
     # Build ServerSpellStart with proper format
     start_packet =
@@ -606,6 +619,32 @@ defmodule BezgelorWorld.Handler.SpellHandler do
       )
 
     send_packet(:server_spell_start, start_packet, state)
+  end
+
+  @doc "Resolve an authorized, completed timed cast in the owner's world session."
+  def complete_cast(player_guid, spell_id, target_guid, target_position, effects, casting_id, state) do
+    cond do
+      not state.session_data[:in_world] ->
+        {:ok, state}
+
+      state.session_data[:entity_guid] != player_guid ->
+        {:ok, state}
+
+      true ->
+        case Spell.get(spell_id) do
+          nil ->
+            {:ok, state}
+
+          spell ->
+            packet = %{target_guid: target_guid || 0,
+              target_position: target_position || state.session_data[:position]}
+            if validate_target(spell, packet, state) and validate_range(spell, packet, state) do
+              handle_instant_cast(spell, packet, player_guid, %{effects: effects, casting_id: casting_id}, state, true)
+            else
+              send_cast_result(:failed, :invalid_target, spell_id, state)
+            end
+        end
+    end
   end
 
   defp handle_cancel_cast(state) do
@@ -675,7 +714,7 @@ defmodule BezgelorWorld.Handler.SpellHandler do
     send_packet(:server_cast_result, packet, state)
   end
 
-  defp send_spell_start_go_and_extra(spell_start, spell_go, extra_packets, state) do
+  defp send_spell_start_go_and_extra(spell_start, spell_go, extra_packets, effect_packets, state, already_started) do
     # Encode ServerSpellStart
     start_writer = PacketWriter.new()
     {:ok, start_writer} = ServerSpellStart.write(spell_start, start_writer)
@@ -687,12 +726,14 @@ defmodule BezgelorWorld.Handler.SpellHandler do
     go_data = PacketWriter.to_binary(go_writer)
 
     # Send extra packets (like teleport) BEFORE spell packets so movement happens first
-    packets =
-      extra_packets ++
-        [
-          {:server_spell_start, start_data},
-          {:server_spell_go, go_data}
-        ]
+    spell_packets =
+      if already_started do
+        [{:server_spell_go, go_data}]
+      else
+        [{:server_spell_start, start_data}, {:server_spell_go, go_data}]
+      end
+
+    packets = extra_packets ++ spell_packets ++ effect_packets
 
     {:reply_multi_world_encrypted, packets, state}
   end

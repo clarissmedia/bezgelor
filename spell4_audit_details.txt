@@ -1,0 +1,360 @@
+﻿=== SPELL MANAGER : ETAT ET FIN DES INCANTATIONS ===
+  - `spell` - Spell struct with aoe_radius and other data
+  - `position` - Center position for the telegraph
+  - `recipient_guids` - List of player GUIDs who should see the telegraph
+  """
+  @spec emit_telegraph(non_neg_integer(), Spell.t(), {float(), float(), float()}, [
+          non_neg_integer()
+        ]) :: :ok
+  def emit_telegraph(caster_guid, spell, position, recipient_guids) do
+    if Spell.aoe?(spell) and spell.aoe_radius > 0 do
+      # AoE spells show a circle telegraph
+      # Duration = cast time (for cast-time spells) or a brief flash (for instant)
+      duration = if spell.cast_time > 0, do: spell.cast_time, else: 500
+
+      # Enemy-hostile spells show red, friendly spells show blue
+      color = if spell.hostile, do: :red, else: :blue
+
+      CombatBroadcaster.broadcast_circle_telegraph(
+        caster_guid,
+        position,
+        spell.aoe_radius,
+        duration,
+        color,
+        recipient_guids
+      )
+    end
+
+    :ok
+  end
+
+  ## Server Callbacks
+
+  @impl true
+  def init(_opts) do
+    state = %{
+      players: %{}
+    }
+
+    Logger.info("SpellManager started")
+    {:ok, state}
+  end
+
+  @impl true
+  def handle_call(
+        {:cast_spell, player_guid, spell_id, target_guid, target_position, caster_stats, owner_pid},
+        _from,
+        state
+      ) do
+    player = get_player_state(state, player_guid)
+
+    case validate_cast(spell_id, player) do
+      {:ok, spell} ->
+        if Spell.instant?(spell) do
+          # Instant cast - apply effects immediately
+          {result, player} = do_instant_cast(spell, player, caster_stats)
+          state = put_player_state(state, player_guid, player)
+          {:reply, {:ok, :instant, result}, state}
+        else
+          # Cast time spell - start casting
+          {player, _timer_ref} =
+            start_cast(spell, target_guid, target_position, player, player_guid, caster_stats, owner_pid)
+
+          state = put_player_state(state, player_guid, player)
+          {:reply, {:ok, :casting, spell.cast_time}, state}
+        end
+
+      {:error, reason} ->
+        {:reply, {:error, reason}, state}
+    end
+  end
+
+  @impl true
+  def handle_call({:cancel_cast, player_guid}, _from, state) do
+    player = get_player_state(state, player_guid)
+
+    case player.cast do
+      nil ->
+        {:reply, {:error, :not_casting}, state}
+
+      cast ->
+        # Cancel the timer
+        if cast.timer_ref, do: Process.cancel_timer(cast.timer_ref)
+
+        player = %{player | cast: nil}
+        state = put_player_state(state, player_guid, player)
+        {:reply, :ok, state}
+    end
+  end
+
+  @impl true
+  def handle_call({:casting?, player_guid}, _from, state) do
+    player = get_player_state(state, player_guid)
+    {:reply, player.cast != nil, state}
+  end
+
+  @impl true
+  def handle_call({:get_cast, player_guid}, _from, state) do
+    player = get_player_state(state, player_guid)
+    {:reply, player.cast, state}
+  end
+
+  @impl true
+  def handle_call({:spell_ready?, player_guid, spell_id}, _from, state) do
+    player = get_player_state(state, player_guid)
+    spell = Spell.get(spell_id)
+    ready = spell != nil and Cooldown.can_cast?(player.cooldowns, spell_id, spell.gcd)
+    {:reply, ready, state}
+  end
+
+  @impl true
+  def handle_call({:get_cooldown, player_guid, spell_id}, _from, state) do
+    player = get_player_state(state, player_guid)
+    remaining = Cooldown.remaining(player.cooldowns, spell_id)
+    {:reply, remaining, state}
+  end
+
+  @impl true
+  def handle_cast({:clear_player, player_guid}, state) do
+    # Cancel any active cast timer
+    case get_in(state.players, [player_guid, :cast, :timer_ref]) do
+      nil -> :ok
+      ref -> Process.cancel_timer(ref)
+    end
+
+    state = %{state | players: Map.delete(state.players, player_guid)}
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info({:cast_complete, player_guid, spell_id, token}, state) do
+    player = get_player_state(state, player_guid)
+
+    case player.cast do
+      %{spell_id: ^spell_id, token: ^token} = cast ->
+        # Cast completed successfully
+        spell = Spell.get(spell_id)
+
+        # Apply cooldowns
+        cooldowns =
+          Cooldown.apply_cast(
+            player.cooldowns,
+            spell_id,
+            spell.cooldown,
+            spell.gcd,
+            Spell.global_cooldown()
+          )
+
+        player = %{player | cast: nil, cooldowns: cooldowns}
+        state = put_player_state(state, player_guid, player)
+
+        # Only the active cast token may emit a completion. The connection
+        # performs the actual world-state effects and packet transmission.
+        if is_pid(cast.owner_pid) do
+          send(cast.owner_pid, {:spell_cast_completed, player_guid, spell_id,
+            cast.target_guid, cast.target_position, calculate_effects(spell, cast.caster_stats)})
+        end
+        Logger.debug("Cast completed: player #{player_guid} spell #{spell_id}")
+
+        {:noreply, state}
+
+      _ ->
+        # Cast was cancelled or different spell
+        {:noreply, state}
+    end
+  end
+
+  # Private functions
+
+  defp get_player_state(state, player_guid) do
+    Map.get(state.players, player_guid, %{cast: nil, cooldowns: Cooldown.new()})
+  end
+=== SPELL MANAGER : DEMARRAGE / VALIDATION ===
+  # Private functions
+
+  defp get_player_state(state, player_guid) do
+    Map.get(state.players, player_guid, %{cast: nil, cooldowns: Cooldown.new()})
+  end
+
+  defp put_player_state(state, player_guid, player) do
+    %{state | players: Map.put(state.players, player_guid, player)}
+  end
+
+  defp validate_cast(spell_id, player) do
+    spell = Spell.get(spell_id)
+
+    cond do
+      spell == nil ->
+        {:error, :not_known}
+
+      player.cast != nil ->
+        {:error, :already_casting}
+
+      not Cooldown.can_cast?(player.cooldowns, spell_id, spell.gcd) ->
+        {:error, :cooldown}
+
+      true ->
+        {:ok, spell}
+    end
+  end
+
+  defp do_instant_cast(spell, player, caster_stats) do
+    # Apply cooldowns
+    cooldowns =
+      Cooldown.apply_cast(
+        player.cooldowns,
+        spell.id,
+        spell.cooldown,
+        spell.gcd,
+        Spell.global_cooldown()
+      )
+
+    player = %{player | cooldowns: cooldowns}
+
+    # Calculate effect results
+    effects = calculate_effects(spell, caster_stats)
+
+    result = %{
+      spell_id: spell.id,
+      effects: effects,
+      cooldown: spell.cooldown,
+      gcd: if(spell.gcd, do: Spell.global_cooldown(), else: 0)
+    }
+
+    {result, player}
+  end
+
+  defp start_cast(spell, target_guid, target_position, player, player_guid, caster_stats, owner_pid) do
+    # The reference prevents cancelled/replaced casts from completing later.
+    token = make_ref()
+    timer_ref =
+      Process.send_after(self(), {:cast_complete, player_guid, spell.id, token}, spell.cast_time)
+
+    cast = %{
+      token: token,
+      owner_pid: owner_pid,
+      caster_stats: caster_stats,
+      spell_id: spell.id,
+      target_guid: target_guid,
+      target_position: target_position,
+      start_time: System.monotonic_time(:millisecond),
+      duration: spell.cast_time,
+      timer_ref: timer_ref
+    }
+
+    {%{player | cast: cast}, timer_ref}
+  end
+
+  defp calculate_effects(spell, caster_stats) do
+    Enum.map(spell.effects, fn effect ->
+      {amount, is_crit} = SpellEffect.calculate(effect, caster_stats, %{})
+
+      %{
+        type: effect.type,
+        amount: amount,
+        is_crit: is_crit
+      }
+    end)
+  end
+end
+=== SPELL HANDLER : FIN / ANNULATION ===
+  # Entity IDs must be interpreted in the same uint32 space as wire packets.
+  defp is_creature_guid?(guid) when is_integer(guid) and guid > 0 do
+    BezgelorCore.EntityGuid.type(guid) == :creature
+  end
+
+  defp is_creature_guid?(_), do: false
+
+  defp handle_cast_start(spell, packet, player_guid, _cast_time, state) do
+    # Get caster info from session
+    position = state.session_data[:position] || {0.0, 0.0, 0.0}
+    yaw = state.session_data[:yaw] || 0.0
+    caster_id = player_guid &&& 0xFFFFFFFF
+
+    # Generate unique casting ID
+    casting_id = :erlang.unique_integer([:positive, :monotonic]) &&& 0xFFFFFFFF
+
+    # Build ServerSpellStart with proper format
+    start_packet =
+      ServerSpellStart.new(
+        casting_id: casting_id,
+        spell4_id: spell.id,
+        caster_id: caster_id,
+        primary_target_id: if(spell.target_type == :self, do: caster_id, else: packet.target_guid),
+        position: position,
+        yaw: yaw,
+        user_initiated: true
+      )
+
+    send_packet(:server_spell_start, start_packet, state)
+  end
+
+  @doc "Resolve an authorized, completed timed cast in the owner's world session."
+  def complete_cast(player_guid, spell_id, target_guid, target_position, effects, state) do
+    cond do
+      not state.session_data[:in_world] ->
+        {:ok, state}
+
+      state.session_data[:entity_guid] != player_guid ->
+        {:ok, state}
+
+      true ->
+        case Spell.get(spell_id) do
+          nil ->
+            {:ok, state}
+
+          spell ->
+            packet = %{target_guid: target_guid || 0,
+              target_position: target_position || state.session_data[:position]}
+            if validate_target(spell, packet, state) and validate_range(spell, packet, state) do
+              handle_instant_cast(spell, packet, player_guid, %{effects: effects}, state, true)
+            else
+              send_cast_result(:failed, :invalid_target, spell_id, state)
+            end
+        end
+    end
+  end
+
+  defp handle_cancel_cast(state) do
+    player_guid = state.session_data[:entity_guid]
+
+    case SpellManager.cancel_cast(player_guid) do
+      :ok ->
+        send_cast_result(:interrupted, :none, 0, state)
+
+      {:error, :not_casting} ->
+        {:ok, state}
+    end
+  end
+
+  # Validation helpers
+
+  defp validate_target(spell, packet, _state) do
+    case spell.target_type do
+      :self ->
+        # Self-target doesn't need a target
+        true
+
+      :enemy ->
+        # Requires enemy target
+        packet.target_guid != 0
+
+      :ally ->
+        # Requires ally target
+        packet.target_guid != 0
+
+      :ground ->
+        # Requires ground position
+        true
+
+      :aoe ->
+        # AoE can be ground or target
+        true
+    end
+  end
+
+  defp validate_range(spell, packet, state) do
+    if spell.range == 0.0 do
+      # Self-cast, no range check
+      true
+    else

@@ -11,6 +11,7 @@ defmodule BezgelorWorld.SpellBuffIntegrationTest do
     ensure_started(SpellManager)
     ensure_started(BuffManager)
     # Clear any existing state from previous tests
+    SpellManager.clear_player(12345)
     BuffManager.clear_entity(12345)
     :ok
   end

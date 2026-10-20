@@ -1,0 +1,262 @@
+﻿=== TRAITEMENT DES SORTS ===
+  defp handle_instant_cast(spell, packet, player_guid, result, state, already_started) do
+    # Get caster info from session
+    position = state.session_data[:position] || {0.0, 0.0, 0.0}
+    yaw = state.session_data[:yaw] || 0.0
+    # Entity ID is the low 32 bits of the GUID
+    caster_id = player_guid &&& 0xFFFFFFFF
+
+    # Generate unique casting ID (simple incrementing counter)
+    casting_id = :erlang.unique_integer([:positive, :monotonic]) &&& 0xFFFFFFFF
+
+    # Calculate destination for Gate teleport
+    # NOTE: This destination calculation works, but the actual teleport doesn't.
+    # See build_teleport_command/2 for details on what we've tried.
+    destination =
+      if spell.id == @gate_spell_id do
+        calculate_gate_destination(position, yaw)
+      else
+        position
+      end
+
+    # Build telegraph position data for Gate
+    # Tried: Including telegraph data in spell packets to hint at teleport destination
+    # Result: No effect on player movement
+    start_telegraph_positions =
+      if spell.id == @gate_spell_id do
+        [
+          %{
+            telegraph_id: 142,
+            attached_unit_id: caster_id,
+            target_flags: 3,
+            position: destination,
+            yaw: yaw,
+            pitch: 0.0
+          }
+        ]
+      else
+        []
+      end
+
+    # Build and send ServerSpellStart
+    spell_start =
+      ServerSpellStart.new(
+        casting_id: casting_id,
+        spell4_id: spell.id,
+        caster_id: caster_id,
+        primary_target_id:
+          if(spell.target_type == :self, do: caster_id, else: packet.target_guid),
+        position: position,
+        yaw: yaw,
+        user_initiated: true,
+        telegraph_positions: start_telegraph_positions
+      )
+
+    # Build ServerSpellGo - set primary_destination to teleport target for Gate
+    # For Gate, include telegraph position at the destination
+    telegraph_positions =
+      if spell.id == @gate_spell_id do
+        [
+          %{
+            # Gate telegraph ID
+            telegraph_id: 142,
+            attached_unit_id: caster_id,
+            target_flags: 3,
+            position: destination,
+            yaw: yaw,
+            pitch: 0.0
+          }
+        ]
+      else
+        []
+      end
+
+    spell_go =
+      ServerSpellGo.new(
+        casting_id: casting_id,
+        caster_id: caster_id,
+        position: position,
+        yaw: yaw,
+        destination: destination,
+        telegraph_positions: telegraph_positions
+      )
+
+    # Get world context for creature damage
+    world_id = state.session_data[:world_id] || 1
+    instance_id = state.session_data[:instance_id] || 1
+    world_key = {world_id, instance_id}
+
+    # Apply effects to targets and collect kill info
+    {_effect_packets, kill_info} =
+      apply_spell_effects(player_guid, packet.target_guid, spell, result.effects, world_key)
+
+    # Broadcast kill rewards if creature was killed
+    if kill_info do
+      zone_id = world_id
+      participant_ids = kill_info.rewards[:participant_character_ids] || []
+
+      CombatBroadcaster.broadcast_entity_death(
+        kill_info.creature_guid,
+        player_guid,
+        [player_guid]
+      )
+
+      CombatBroadcaster.send_kill_rewards(
+        player_guid,
+        kill_info.creature_guid,
+        kill_info.rewards
+      )
+
+      if participant_ids != [] do
+        CombatBroadcaster.notify_creature_kill_multi(
+          zone_id,
+          instance_id,
+          participant_ids,
+          kill_info.rewards.creature_id
+        )
+      end
+
+      Logger.info(
+        "Creature #{kill_info.creature_guid} killed by #{player_guid}! XP: #{kill_info.rewards.xp_reward}"
+      )
+    end
+
+    # Apply ForcedMove effect for Gate teleport - update server-side position
+    # NOTE: We update server state even though client teleport doesn't work,
+    # so if/when teleport is fixed, server position will be correct.
+    state =
+      if spell.id == @gate_spell_id do
+        new_session_data = Map.put(state.session_data, :position, destination)
+        %{state | session_data: new_session_data}
+      else
+        state
+      end
+
+    # For Gate, attempt to send teleport command (currently non-functional)
+    # See build_teleport_command/2 for documentation of failed approaches
+    if spell.id == @gate_spell_id do
+      teleport_packets = build_teleport_command(player_guid, destination)
+      send_spell_start_go_and_extra(spell_start, spell_go, teleport_packets, state, already_started)
+    else
+      send_spell_start_go_and_extra(spell_start, spell_go, [], state, already_started)
+    end
+  end
+
+  # Calculate Gate teleport destination based on yaw (facing direction)
+  # Yaw is in radians, 0 = facing positive X, increases counter-clockwise
+=== APPLICATION DES EFFETS ===
+
+    [{:server_entity_command, teleport_data}]
+  end
+
+  # Apply spell effects to targets, calling World.Instance for damage to creatures
+  # and BuffManager for buff/debuff effects
+  defp apply_spell_effects(caster_guid, target_guid, spell, effects, world_key) do
+    Enum.reduce(effects, {[], nil}, fn effect, {packets, kill_info} ->
+      target = if spell.target_type == :self, do: caster_guid, else: target_guid
+      packet = build_effect_packet(caster_guid, target, spell.id, effect)
+
+      # Apply damage effects to creatures
+      new_kill_info =
+        if effect.type == :damage and is_creature_guid?(target) do
+          apply_damage_to_creature(world_key, target, caster_guid, effect.amount)
+        else
+          nil
+        end
+
+      # Apply buff/debuff effects via BuffManager
+      apply_buff_effect(caster_guid, target, spell, effect)
+
+      {[packet | packets], new_kill_info || kill_info}
+    end)
+    |> then(fn {packets, kill_info} -> {Enum.reverse(packets), kill_info} end)
+  end
+
+  # Apply buff or debuff effect via BuffManager
+  defp apply_buff_effect(caster_guid, target_guid, spell, effect) do
+    case effect.type do
+      :buff ->
+        apply_buff(caster_guid, target_guid, spell, effect, false)
+
+      :debuff ->
+        apply_buff(caster_guid, target_guid, spell, effect, true)
+
+      :hot ->
+        # HoT is a beneficial periodic effect
+        apply_periodic_buff(caster_guid, target_guid, spell, effect, false)
+
+      :dot ->
+        # DoT is a harmful periodic effect
+        apply_periodic_buff(caster_guid, target_guid, spell, effect, true)
+
+      :resurrect ->
+        # Resurrection effect - offer resurrection to dead target
+        apply_resurrect_effect(caster_guid, target_guid, spell, effect)
+
+      _ ->
+        :ok
+    end
+  end
+
+  defp apply_buff(caster_guid, target_guid, spell, effect, is_debuff) do
+    # Get buff_type and duration from original spell effect (result effect doesn't have these)
+    original_effect = Enum.find(spell.effects, fn e -> e.type == effect.type end)
+    buff_type = (original_effect && original_effect.buff_type) || :absorb
+    duration = (original_effect && original_effect.duration) || effect.duration || 10_000
+
+    buff =
+      BuffDebuff.new(%{
+        id: spell.id,
+        spell_id: spell.id,
+        buff_type: buff_type,
+        amount: effect.amount,
+        duration: duration,
+        is_debuff: is_debuff
+      })
+
+    case BuffManager.apply_buff(target_guid, buff, caster_guid) do
+      {:ok, _timer_ref} ->
+        Logger.debug(
+          "Applied #{if is_debuff, do: "debuff", else: "buff"} #{spell.id} to #{target_guid}"
+        )
+
+        # Broadcast buff apply to the target
+        CombatBroadcaster.send_buff_apply(target_guid, caster_guid, buff)
+        :ok
+
+      {:error, reason} ->
+        Logger.warning("Failed to apply buff #{spell.id}: #{inspect(reason)}")
+        :error
+    end
+  end
+
+  defp apply_periodic_buff(caster_guid, target_guid, spell, effect, is_debuff) do
+    # Get tick_interval from original spell effect
+    original_effect = Enum.find(spell.effects, fn e -> e.type == effect.type end)
+    tick_interval = (original_effect && original_effect.tick_interval) || 1000
+    duration = (original_effect && original_effect.duration) || effect.duration || 10_000
+
+    # For periodic effects, we use :periodic buff type
+    buff =
+      BuffDebuff.new(%{
+        id: spell.id,
+        spell_id: spell.id,
+        buff_type: :periodic,
+        amount: effect.amount,
+        duration: duration,
+        tick_interval: tick_interval,
+        is_debuff: is_debuff
+      })
+
+    case BuffManager.apply_buff(target_guid, buff, caster_guid) do
+      {:ok, _timer_ref} ->
+        Logger.debug("Applied periodic effect #{spell.id} to #{target_guid}")
+        # Broadcast buff apply to the target
+        CombatBroadcaster.send_buff_apply(target_guid, caster_guid, buff)
+        :ok
+
+      {:error, reason} ->
+        Logger.warning("Failed to apply periodic effect #{spell.id}: #{inspect(reason)}")
+        :error
+    end
+  end

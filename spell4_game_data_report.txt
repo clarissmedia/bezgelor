@@ -1,0 +1,8 @@
+﻿=== STRUCTURE DES FICHIERS SPELL4 ===
+Spell4_part1.json :  entrees
+Spell4_part2.json :  entrees
+Spell4_part3.json :  entrees
+Spell4_part4.json :  entrees
+Spell4_part5.json :  entrees
+Spell4_part6.json :  entrees
+Spell4_part7.json :  entrees

@@ -25,6 +25,7 @@ defmodule BezgelorWorld.SpellManager do
   """
 
   use GenServer
+  import Bitwise
 
   alias BezgelorCore.{Spell, SpellEffect, Cooldown}
   alias BezgelorWorld.CombatBroadcaster
@@ -37,7 +38,11 @@ defmodule BezgelorWorld.SpellManager do
           target_position: {float(), float(), float()} | nil,
           start_time: integer(),
           duration: non_neg_integer(),
-          timer_ref: reference() | nil
+          timer_ref: reference() | nil,
+          casting_id: non_neg_integer(),
+          token: reference(),
+          owner_pid: pid() | nil,
+          caster_stats: map()
         }
 
   @type player_state :: %{
@@ -73,9 +78,15 @@ defmodule BezgelorWorld.SpellManager do
         ) ::
           {:ok, :instant, map()} | {:ok, :casting, non_neg_integer()} | {:error, atom()}
   def cast_spell(player_guid, spell_id, target_guid, target_position, caster_stats) do
+    cast_spell(player_guid, spell_id, target_guid, target_position, caster_stats, nil)
+  end
+
+  @doc "Cast a spell with an optional connection PID for completion notification."
+  def cast_spell(player_guid, spell_id, target_guid, target_position, caster_stats, owner_pid)
+      when is_nil(owner_pid) or is_pid(owner_pid) do
     GenServer.call(
       __MODULE__,
-      {:cast_spell, player_guid, spell_id, target_guid, target_position, caster_stats}
+      {:cast_spell, player_guid, spell_id, target_guid, target_position, caster_stats, owner_pid}
     )
   end
 
@@ -180,7 +191,7 @@ defmodule BezgelorWorld.SpellManager do
 
   @impl true
   def handle_call(
-        {:cast_spell, player_guid, spell_id, target_guid, target_position, caster_stats},
+        {:cast_spell, player_guid, spell_id, target_guid, target_position, caster_stats, owner_pid},
         _from,
         state
       ) do
@@ -196,7 +207,7 @@ defmodule BezgelorWorld.SpellManager do
         else
           # Cast time spell - start casting
           {player, _timer_ref} =
-            start_cast(spell, target_guid, target_position, player, player_guid)
+            start_cast(spell, target_guid, target_position, player, player_guid, caster_stats, owner_pid)
 
           state = put_player_state(state, player_guid, player)
           {:reply, {:ok, :casting, spell.cast_time}, state}
@@ -265,11 +276,11 @@ defmodule BezgelorWorld.SpellManager do
   end
 
   @impl true
-  def handle_info({:cast_complete, player_guid, spell_id}, state) do
+  def handle_info({:cast_complete, player_guid, spell_id, token}, state) do
     player = get_player_state(state, player_guid)
 
     case player.cast do
-      %{spell_id: ^spell_id} = _cast ->
+      %{spell_id: ^spell_id, token: ^token} = cast ->
         # Cast completed successfully
         spell = Spell.get(spell_id)
 
@@ -286,8 +297,13 @@ defmodule BezgelorWorld.SpellManager do
         player = %{player | cast: nil, cooldowns: cooldowns}
         state = put_player_state(state, player_guid, player)
 
-        # Notify the player's connection about cast completion
-        # This would be done through WorldManager or direct process message
+        # Only the active cast token may emit a completion. The connection
+        # performs the actual world-state effects and packet transmission.
+        if is_pid(cast.owner_pid) do
+          send(cast.owner_pid, {:spell_cast_completed, player_guid, spell_id,
+            cast.target_guid, cast.target_position, calculate_effects(spell, cast.caster_stats),
+            cast.casting_id})
+        end
         Logger.debug("Cast completed: player #{player_guid} spell #{spell_id}")
 
         {:noreply, state}
@@ -352,12 +368,17 @@ defmodule BezgelorWorld.SpellManager do
     {result, player}
   end
 
-  defp start_cast(spell, target_guid, target_position, player, player_guid) do
-    # Schedule cast completion
+  defp start_cast(spell, target_guid, target_position, player, player_guid, caster_stats, owner_pid) do
+    # The reference prevents cancelled/replaced casts from completing later.
+    token = make_ref()
     timer_ref =
-      Process.send_after(self(), {:cast_complete, player_guid, spell.id}, spell.cast_time)
+      Process.send_after(self(), {:cast_complete, player_guid, spell.id, token}, spell.cast_time)
 
     cast = %{
+      token: token,
+      casting_id: :erlang.unique_integer([:positive, :monotonic]) &&& 0xFFFFFFFF,
+      owner_pid: owner_pid,
+      caster_stats: caster_stats,
       spell_id: spell.id,
       target_guid: target_guid,
       target_position: target_position,
